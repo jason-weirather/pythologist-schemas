@@ -1,0 +1,1 @@
+include pythologist_validator/schemas/*.json

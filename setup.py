@@ -22,8 +22,10 @@ setup(
     'License :: OSI Approved :: Apache Software License'
   ],
   keywords='bioinformatics',
-  packages=['pythologist_validator'],
+  packages=['pythologist_validator',
+            'pythologist_validator.schemas'],
   install_requires = ['jsonschema'],
+  include_package_data = True,
   entry_points = {
     'console_scripts':['pythologist-validator=pythologist_validator:entry_point']
   }
