@@ -112,7 +112,8 @@
         },
         "Populations":{
             "type":"array",
-            "items":{"$ref":"#/definitions/Population"}
+            "items":{"$ref":"#/definitions/Population",
+                     "required":["Label"]}
         },
         "Percentages":{
             "type":"array",
