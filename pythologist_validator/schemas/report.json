@@ -40,7 +40,7 @@
             "properties":{
                 "Label":{
                     "type":"string",
-                    "description":"A label for the population used when displaying it. Should be unique for each population."
+                    "description":"A label for the population used when displaying it in the report. Should be unique for each population."
                 },
                 "Meta":{
                     "type":"object",
@@ -62,7 +62,7 @@
                             "items":{"type":"string"}
                         },
                         "Thresholds":{
-                            "type":"object",
+                            "type":"array",
                             "description":"Keyed by marker abbreviation that have been analyzed for being positive or negative. If a thresholded marker is not declared here, do not filter the population based on it.",
                             "items":{
                                 "type":"object",
@@ -74,6 +74,7 @@
                                         "enum":["+","-"]
                                     }
                                 },
+                                "additionalProperties":false,
                                 "required":["MarkerName","FilterStrategy"]
                             }
                         }
@@ -86,15 +87,21 @@
             "type":"object",
             "description":"A measure of percentage defined by a denominator population, and a numerator population that is a proper subset of the denominator.",
             "properties":{
+                "Label":{
+                    "type":"string",
+                    "description":"A unique label for the Percentage population used in the report. It should be unique to each percentage measurement."
+                },
                 "Meta":{
                     "type":"object",
                     "properties":{
-                        "Label":{"type":"string"}
+                        "Description":{"type":"string"}
                     }
                 },
                 "Numerator":{"$ref":"#/definitions/Population"},
                 "Denominator":{"$ref":"#/definitions/Population"}
-            }
+            },
+            "required":["Label","Numerator","Denominator"],
+            "additionalProperties":false
         }
     },
     "properties":{
@@ -112,8 +119,13 @@
         },
         "Populations":{
             "type":"array",
-            "items":{"$ref":"#/definitions/Population",
-                     "required":["Label"]}
+            "description":"The Label for each population here is required since this will be needed to format the report output.",
+            "items":{
+                "allOf":[
+                    {"$ref":"#/definitions/Population"},
+                    {"required":["Label"]}
+                ]
+            }
         },
         "Percentages":{
             "type":"array",

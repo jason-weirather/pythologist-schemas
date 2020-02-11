@@ -40,7 +40,7 @@
                 "Rules":{
                     "type":"object",
                     "properties":{
-                        "Phenotypes":{
+                        "MutuallyExclusivePhenotypes":{
                             "type":"array",
                              "description": "Names used to phenotype cells."
                         },
@@ -48,8 +48,9 @@
                             "type":"array",
                              "description": "Stain abbreviations that have already been analyzed by threshold as positive/negative."
                         },
-                        "Regions":{
-                            "type":"array"
+                        "MutuallyExclusiveRegions":{
+                            "type":"array",
+                            "description": "The labels of mutually exclusive regions."
                         }
                     }
                 }
