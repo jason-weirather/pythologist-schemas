@@ -34,6 +34,7 @@
                             }
                             
                         },
+                        "additionalProperties":false,
                         "required":["MarkerName","FullName"]
                     }
                 },
@@ -42,19 +43,24 @@
                     "properties":{
                         "MutuallyExclusivePhenotypes":{
                             "type":"array",
-                             "description": "Names used to phenotype cells."
+                            "description": "Names used to phenotype cells.",
+                            "items":{"type":"string"}
+                            }
                         },
                         "Thresholds":{
                             "type":"array",
-                             "description": "Stain abbreviations that have already been analyzed by threshold as positive/negative."
+                            "description": "Stain abbreviations that have already been analyzed by threshold as positive/negative.",
+                            "items":{"type":"string"}
                         },
                         "MutuallyExclusiveRegions":{
                             "type":"array",
-                            "description": "The labels of mutually exclusive regions."
+                            "description": "The labels of mutually exclusive regions.",
+                            "items":{"type":"string"}
                         }
                     }
                 }
             },
+            "additionalProperties":false,
             "required":["Stains","Rules"]
                     
         },

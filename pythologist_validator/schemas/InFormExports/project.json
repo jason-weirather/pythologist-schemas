@@ -1,0 +1,60 @@
+{
+    "$schema": "https://json-schema.org/schema#",
+    "type": "object",
+    "description":"Describe expected components of an InForm export project",
+    "definitions":{
+        "Image":{
+            "type":"object",
+            "properties":{
+                "ImageName":{
+                    "type":"string",
+                    "description":"a base name"
+                },
+                "ExportData":{
+                    "type":"object",
+                    "properties":{
+                        "component_data_tif_path":{"type":"string"}
+                        "binary_segs_maps_tif_path":{"type":"string"},
+                        "cell_seg_data_txt_path":{"type":"string"},
+                        "score_data_txt_path":{"type":"string"}
+                    }
+                }
+            }   
+        },
+        "Sample":{
+            "type":"object",
+            "description":"A collection of images that make up a sample.",
+            "properties":{
+                "SampleName":{"type":"string"}
+                "Images":{
+                    "type":"array",
+                    "items":{"$ref":"#/definitions/Image}
+                }
+            },
+            "required":["SampleName","Images"]
+        },
+        "Export":{
+            "properties":{
+                "ExportName":{"type":"string"},
+                "ThresholdMarkerNames":{
+                    "type":"array",
+                    "items":{"type":"string"}
+                },
+                "Samples":{
+                    "type":"array",
+                    "items":{"$ref":"#/definitions/Sample"}
+                }
+            },
+            "required":["ExportName","Samples"]
+        }
+    },
+    "properties":{
+        "MicronsPerPixel":{"type":"float"},
+        "ProjectName",
+        "Exports":{
+            "type":"array",
+            "items":{"$ref":"#/definitions/Sample"}
+        }
+    },
+    "required":["MicronsPerPixel","Exports"]
+}
