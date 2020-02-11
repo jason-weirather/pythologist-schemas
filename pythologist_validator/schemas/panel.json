@@ -6,10 +6,35 @@
             "type": "object",
             "properties": {
                 "Stains":{
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string",
-                        "description": "Stain names are all assigned string abbreviations."
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "description": "Stain marker names are keys to these properites.",
+                        "properties":{
+                            "MarkerName":{
+                                "type":"string",
+                                "description":"Short name unique to each entry."
+                            },
+                            "FullName":{
+                                "type":"string",
+                                "description":"Descriptive name that is used in raw data to refer to the Stain."
+                            },
+                            "LineageMarker":{
+                                "type":["boolean", "null"],
+                                "description":"This marker is expected to be used in determining mutually exclusive cell phenotypes."
+                            },
+                            "Thresholding":{
+                                "type":["boolean", "null"],
+                                "description":"This marker is expected to be set by a threshold to call it as positive or negative."
+                            },
+                            "Compartment":{
+                                "type":"string",
+                                "description":"Which cellular component this marker is expected to stain.",
+                                "enum":["Nuclear","Membrane","Whole Cell","Other"]
+                            }
+                            
+                        },
+                        "required":["MarkerName","FullName"]
                     }
                 },
                 "Rules":{
@@ -21,7 +46,7 @@
                         },
                         "Thresholds":{
                             "type":"array",
-                             "description": "Stain abbreviations that have positive/negative scoring threshold data."
+                             "description": "Stain abbreviations that have already been analyzed by threshold as positive/negative."
                         },
                         "Regions":{
                             "type":"array"
