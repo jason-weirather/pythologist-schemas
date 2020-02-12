@@ -1,7 +1,7 @@
 {
     "$schema": "https://json-schema.org/schema#",
     "type": "object",
-    "description":"Describe expected components of an InForm export project",
+    "description":"Describe expected components of an InForm project exports. This is a list of exports from the same project for the purpose of combining thresholding strategies.",
     "definitions":{
         "Image":{
             "type":"object",
