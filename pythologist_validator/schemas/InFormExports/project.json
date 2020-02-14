@@ -3,58 +3,91 @@
     "type": "object",
     "description":"Describe expected components of an InForm project exports. This is a list of exports from the same project for the purpose of combining thresholding strategies.",
     "definitions":{
-        "Image":{
+        "image_export":{
             "type":"object",
             "properties":{
-                "ImageName":{
+                "image_name":{
                     "type":"string",
                     "description":"a base name"
                 },
-                "ExportData":{
+                "export_data":{
                     "type":"object",
                     "properties":{
                         "component_data_tif_path":{"type":"string"}
                         "binary_segs_maps_tif_path":{"type":"string"},
                         "cell_seg_data_txt_path":{"type":"string"},
-                        "score_data_txt_path":{"type":"string"}
+                        "score_data_txt_path":{"type":["string","null"]}
                     }
                 }
             }   
         },
-        "Sample":{
+        "sample_export":{
             "type":"object",
-            "description":"A collection of images that make up a sample.",
+            "description":"A collection of imageExports that make up a sample.",
             "properties":{
-                "SampleName":{"type":"string"}
-                "Images":{
+                "sampleName":{"type":"string"}
+                "image_exports":{
                     "type":"array",
-                    "items":{"$ref":"#/definitions/Image}
+                    "items":{"$ref":"#/definitions/image_export"}
                 }
             },
-            "required":["SampleName","Images"]
+            "required":["sample_name","image_exports"]
         },
-        "Export":{
+        "single_project_export":{
+            "description":"A collection of exports, but may not contain all the threshold strategies."
             "properties":{
-                "ExportName":{"type":"string"},
-                "ThresholdMarkerNames":{
-                    "type":"array",
-                    "items":{"type":"string"}
+                "single_project_export_name":{"type":"string"},
+                "is_primary_mutually_exclusive_phenotyping":{
+                            "type":"boolean",
+                            "description":"This project contains base phenotyping strategy.  At least one export must be true."
                 },
-                "Samples":{
+                "scored_marker_names":{
+                            "description":"These are the thresholds to take from these. These should be among the marker_name variables defined in the panel."
+                            "type":"array",
+                            "items":{
+                                "type":"string",
+                                "name":"marker_name"
+                            }
+                },
+                "rules":{
+                    "type":"object",
+                    "properties":{
+                        "mutually_exclusive_phenotypes_to_merge_as_binary_phenotypes":{
+                            "description":"This export has been phenotyped for something intended downstream to be treated as a thresholded marker.",
+                            "type":"array",
+                            "items":{
+                                "type":"object",
+                                "properties":{
+                                    "mutually_exclusive_phenotype":{
+                                        "description":"This does NOT need to be a mutually exclusive phenotype defined by the panel.",
+                                        "type":"string"
+                                    },
+                                    "binary_phenotype_name":{
+                                        "description":"This does NOT need to be a mutually exclusive phenotype defined by the panel.",
+                                        "type":"string"
+                                   }
+                               }
+                           }
+                       },
+                       "required":["is_primary_mutually_exclusive_phenotyping"]
+                    }
+                },
+                "sampleExports":{
                     "type":"array",
-                    "items":{"$ref":"#/definitions/Sample"}
+                    "items":{"$ref":"#/definitions/sample_exports"}
                 }
             },
-            "required":["ExportName","Samples"]
+            "required":["single_project_export_name","is_primary_mutually_exclusive_phenotyping","scored_marker_names","sample_exports"]
         }
     },
     "properties":{
-        "MicronsPerPixel":{"type":"float"},
-        "ProjectName",
-        "Exports":{
+        "microns_per_pixel":{"type":"float"},
+        "project_name":{"type":"string"},
+        "single_project_exports":{
             "type":"array",
-            "items":{"$ref":"#/definitions/Sample"}
+            "description":"A list of one or more exports of the same project.",
+            "items":{"$ref":"#/definitions/single_project_export"}
         }
     },
-    "required":["MicronsPerPixel","Exports"]
+    "required":["microns_per_pixel","single_project_exports"]
 }

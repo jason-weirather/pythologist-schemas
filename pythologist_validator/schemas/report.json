@@ -3,14 +3,15 @@
     "type": "object",
     "description":"Define cell populations to produce a report on for population and percentage based measures, across a set of defined regions.",
     "definitions":{
-        "Region":{
+        "region":{
             "type":"object",
+            "description":"A region can be composed of multiple mutually exclusive regions."
             "properties":{
-                "Label":{
+                "label":{
                     "type":"string",
                     "description":"A label for a region used when displaying it. This should be unique to each defined region."
                 },
-                "Meta":{
+                "meta":{
                     "type":"object",
                     "description":"Properties of a region that are not needed for execution.",
                     "properties":{
@@ -20,9 +21,9 @@
                         }
                     }
                 },
-                "Filters":{
+                "rules":{
                     "type":"object",
-                    "description":"Properties of a Region definition that define its behavior.",
+                    "description":"Properties of a region definition that define its behavior.",
                     "properties":{
                         "MutuallyExclusiveRegions":{
                             "type":"array",
@@ -32,17 +33,17 @@
                     }
                 }
             },
-            "required":["Label","Filters"]
+            "required":["label","rules"]
         },
-        "Population":{
+        "population":{
             "type":"object",
             "description":"Syntax sufficient for defining a population of cells.",
             "properties":{
-                "Label":{
+                "label":{
                     "type":"string",
                     "description":"A label for the population used when displaying it in the report. Should be unique for each population."
                 },
-                "Meta":{
+                "meta":{
                     "type":"object",
                     "description":"Properties describing a population that do not affect what it defines.",
                     "properties":{
@@ -52,84 +53,87 @@
                         }
                     }
                 },
-                "Filters":{
+                "rules":{
                     "type":"object",
                     "description":"Properties of a cell population that define the population.",
                     "properties":{
-                        "MutuallyExclusivePhenotypes":{
+                        "mutually_exclusive_phenotypes":{
                             "type":"array",
                             "description":"Set of mutually exclusive phenotypes that define the population.  If nothing is set, assume it can be any phenotype.",
                             "items":{"type":"string"}
                         },
-                        "Thresholds":{
+                        "threshold_strategies":{
                             "type":"array",
                             "description":"Keyed by marker abbreviation that have been analyzed for being positive or negative. If a thresholded marker is not declared here, do not filter the population based on it.",
                             "items":{
                                 "type":"object",
                                 "description":"The positive or negative status of the filter",
                                 "properties":{
-                                    "MarkerName":{"type":"string"},
-                                    "FilterStrategy":{
+                                    "marker_name":{
+                                        "type":"string",
+                                        "description":"This is the same markerName as defined in the panel stains."
+                                    },
+                                    "threshold_strategy":{
                                         "type":"string",
                                         "enum":["+","-"]
                                     }
                                 },
                                 "additionalProperties":false,
-                                "required":["MarkerName","FilterStrategy"]
+                                "required":["marker_name","threshold_strategy"]
                             }
                         }
                     }
                 }
             },
-            "required":["Filters"]
+            "required":["rules"]
         },
-        "Percentage":{
+        "percentage":{
             "type":"object",
             "description":"A measure of percentage defined by a denominator population, and a numerator population that is a proper subset of the denominator.",
             "properties":{
-                "Label":{
+                "label":{
                     "type":"string",
                     "description":"A unique label for the Percentage population used in the report. It should be unique to each percentage measurement."
                 },
-                "Meta":{
+                "meta":{
                     "type":"object",
                     "properties":{
                         "Description":{"type":"string"}
                     }
                 },
-                "Numerator":{"$ref":"#/definitions/Population"},
-                "Denominator":{"$ref":"#/definitions/Population"}
+                "numerator":{"$ref":"#/definitions/population"},
+                "denominator":{"$ref":"#/definitions/population"}
             },
-            "required":["Label","Numerator","Denominator"],
+            "required":["label","numerator","denominator"],
             "additionalProperties":false
         }
     },
     "properties":{
-        "Meta":{
+        "meta":{
             "type":"object",
             "properties":{
-                "Name":{"type":"string"},
-                "Version":{"type":"string"}
+                "name":{"type":"string"},
+                "version":{"type":"string"}
             }
         },
-        "Regions":{
+        "regions":{
             "description":"A list of regions each of which will have populations/percentages reported upon.",
             "type":"array",
-            "items":{"$ref":"#/definitions/Region"}
+            "items":{"$ref":"#/definitions/region"}
         },
-        "Populations":{
+        "populations":{
             "type":"array",
             "description":"The Label for each population here is required since this will be needed to format the report output.",
             "items":{
                 "allOf":[
-                    {"$ref":"#/definitions/Population"},
-                    {"required":["Label"]}
+                    {"$ref":"#/definitions/population"},
+                    {"required":["label"]}
                 ]
             }
         },
-        "Percentages":{
+        "percentages":{
             "type":"array",
-            "items":{"$ref":"#/definitions/Percentage"}
+            "items":{"$ref":"#/definitions/percentage"}
         }
     },      
     "additionalProperties":false

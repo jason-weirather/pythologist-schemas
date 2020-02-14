@@ -2,89 +2,89 @@
     "$schema": "https://json-schema.org/schema#",
     "type": "object",
     "properties": {
-        "Specification": {
-            "type": "object",
-            "properties": {
-                "Stains":{
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "description": "Stain marker names are keys to these properites.",
-                        "properties":{
-                            "MarkerName":{
-                                "type":"string",
-                                "description":"Short name unique to each entry."
-                            },
-                            "FullName":{
-                                "type":"string",
-                                "description":"Descriptive name that is used in raw data to refer to the Stain."
-                            },
-                            "LineageMarker":{
-                                "type":["boolean", "null"],
-                                "description":"This marker is expected to be used in determining mutually exclusive cell phenotypes."
-                            },
-                            "Thresholding":{
-                                "type":["boolean", "null"],
-                                "description":"This marker is expected to be set by a threshold to call it as positive or negative."
-                            },
-                            "Compartment":{
-                                "type":"string",
-                                "description":"Which cellular component this marker is expected to stain.",
-                                "enum":["Nuclear","Membrane","Whole Cell","Other"]
-                            }
-                            
-                        },
-                        "additionalProperties":false,
-                        "required":["MarkerName","FullName"]
+        "stains":{
+            "type": "array",
+            "items": {
+                "type": "object",
+                "description": "Stain marker names are keys to these properites.",
+                "properties":{
+                    "marker_name":{
+                        "type":"string",
+                        "description":"Short name unique to each entry."
+                    },
+                    "full_name":{
+                        "type":"string",
+                        "description":"Descriptive name that is used in raw data to refer to the Stain."
+                    },
+                    "compartment":{
+                        "type":"string",
+                        "description":"Which cellular component this marker is expected to stain.",
+                        "enum":["Nuclear","Membrane","Whole Cell","Other"]
+                    },
+                    "lineage_marker":{
+                        "type":["boolean", "null"],
+                        "description":"This marker is expected to be used in determining mutually exclusive cell phenotypes."
+                    },
+                    "thresholding":{
+                        "type":["boolean", "null"],
+                        "description":"This marker is expected to be set by a threshold to call it as positive or negative."
                     }
                 },
-                "Rules":{
-                    "type":"object",
-                    "properties":{
-                        "MutuallyExclusivePhenotypes":{
-                            "type":"array",
-                            "description": "Names used to phenotype cells.",
-                            "items":{"type":"string"}
+                "additionalProperties":false,
+                "required":["marker_name","full_name"]
+            }
+        },
+        "annotations":{
+            "description":"These are a first 'working' set of features that the analysis process will add to the images.",
+            "type":"object",
+            "properties":{
+                "mutually_exclusive_phenotypes":{
+                    "type":"array",
+                    "description": "Names used to phenotype cells.",
+                    "items":{"type":"string"}
+                },
+                "binary_phenotypes":{
+                    "type":"array",
+                    "description": "This is a set of features abstracted from the image that will be classified as positive or negative.",
+                    "items":{
+                        "type":"object",
+                        "properties":{
+                            "binary_phenotype_name":{"type":"string"},
+                            "binary_phenotype_source":{
+                                "type":"string",
+                                "enum":["Stain intensity threshold","Learned phenotype","Other"]
                             }
-                        },
-                        "Thresholds":{
-                            "type":"array",
-                            "description": "Stain abbreviations that have already been analyzed by threshold as positive/negative.",
-                            "items":{"type":"string"}
-                        },
-                        "MutuallyExclusiveRegions":{
-                            "type":"array",
-                            "description": "The labels of mutually exclusive regions.",
-                            "items":{"type":"string"}
                         }
                     }
+                },
+                "mutually_exclusive_regions":{
+                    "type":"array",
+                    "description": "The labels of mutually exclusive regions.",
+                    "items":{"type":"string"}
                 }
-            },
-            "additionalProperties":false,
-            "required":["Stains","Rules"]
-                    
+            }
         },
-        "Meta": {
+        "meta": {
             "type": "object",
             "properties":{
-                "Name":{
+                "label":{
                     "type":"string",
                     "description":"The panel name."
                 },
-                "Description":{
+                "description":{
                     "type":"string",
                     "description":"A description of the panel."
                 },
-                "Version":{
+                "version":{
                     "type":"string",
                     "description":"A version of the panel."
                 },
-                "Platform":{
+                "platform":{
                     "type":"string",
                     "description":"The platform this panel was built for."
                 }
             }
         }
     },
-    "required": ["Specification","Meta"]
+    "required": ["stains","annotations","meta"]
 }
