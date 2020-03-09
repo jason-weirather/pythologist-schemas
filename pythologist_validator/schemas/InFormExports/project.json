@@ -13,7 +13,7 @@
                 "export_data":{
                     "type":"object",
                     "properties":{
-                        "component_data_tif_path":{"type":"string"}
+                        "component_data_tif_path":{"type":"string"},
                         "binary_segs_maps_tif_path":{"type":"string"},
                         "cell_seg_data_txt_path":{"type":"string"},
                         "score_data_txt_path":{"type":["string","null"]}
@@ -25,7 +25,7 @@
             "type":"object",
             "description":"A collection of imageExports that make up a sample.",
             "properties":{
-                "sampleName":{"type":"string"}
+                "sampleName":{"type":"string"},
                 "image_exports":{
                     "type":"array",
                     "items":{"$ref":"#/definitions/image_export"}
@@ -34,7 +34,7 @@
             "required":["sample_name","image_exports"]
         },
         "single_project_export":{
-            "description":"A collection of exports, but may not contain all the threshold strategies."
+            "description":"A collection of exports, but may not contain all the threshold strategies.",
             "properties":{
                 "single_project_export_name":{"type":"string"},
                 "is_primary_mutually_exclusive_phenotyping":{
@@ -42,7 +42,7 @@
                             "description":"This project contains base phenotyping strategy.  At least one export must be true."
                 },
                 "scored_marker_names":{
-                            "description":"These are the thresholds to take from these. These should be among the marker_name variables defined in the panel."
+                            "description":"These are the thresholds to take from these. These should be among the marker_name variables defined in the panel.",
                             "type":"array",
                             "items":{
                                 "type":"string",
