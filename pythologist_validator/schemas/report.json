@@ -5,7 +5,7 @@
     "definitions":{
         "region":{
             "type":"object",
-            "description":"A region can be composed of multiple mutually exclusive regions."
+            "description":"A region can be composed of multiple mutually exclusive regions.",
             "properties":{
                 "label":{
                     "type":"string",
