@@ -27,7 +27,7 @@
                 }
             },
             "required":["ID"]
-        }
+        },
         "BinaryMaskImage":{
             "allOf":[
                 {"$ref":"#/definitions/ImageData"},
@@ -69,7 +69,7 @@
                     "required":["MarkerName"]
                 }
             ]            
-        }
+        },
         "CellData":{
             "type":"object",
             "properties":{
@@ -152,7 +152,7 @@
                              {"$ref":"#/definitions/BinaryMaskImage"},
                              {
                                  "properties":{
-                                    "MutuallyExclusiveRegionName":{"type","string"},
+                                    "MutuallyExclusiveRegionName":{"type":"string"},
                                  },
                                  "required":["MutuallyExclusiveRegionName"]
                               }
@@ -189,7 +189,7 @@
                 }
             }
         }
-    }
+    },
     "properties":{
         "type":"object",
         "description":"A project that has been analyzed and is staged for data extraction and interrogation.",
