@@ -7,11 +7,11 @@ with open(path.join(this_folder,'README.md'),encoding='utf-8') as inf:
   long_description = inf.read()
 
 setup(
-  name='pythologist_validator',
+  name='pythologist_schemas',
   version='0.1.0',
   description='Check the assumptions of inputs for pythologist ahead of reading',
   long_description=long_description,
-  url='https://github.com/jason-weirather/pythologist-validator',
+  url='https://github.com/jason-weirather/pythologist-schemas',
   author='Jason L Weirather',
   author_email='jason.weirather@gmail.com',
   license='Apache License, Version 2.0',
@@ -22,11 +22,11 @@ setup(
     'License :: OSI Approved :: Apache Software License'
   ],
   keywords='bioinformatics',
-  packages=['pythologist_validator',
-            'pythologist_validator.schemas'],
+  packages=['pythologist_schemas',
+            'pythologist_schemas.schemas'],
   install_requires = ['jsonschema'],
   include_package_data = True,
   entry_points = {
-    'console_scripts':['pythologist-validator=pythologist_validator:entry_point']
+    'console_scripts':['pythologist-validator=pythologist_schemas:entry_point']
   }
 )
