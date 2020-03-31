@@ -12,12 +12,26 @@
                 },
                 "export_data":{
                     "type":"object",
+                    "description":"These are the paths of the data elements created from InForm exports, although none are explicitly required here, what can be done downstream depends which of these are available.",
                     "properties":{
-                        "component_data_tif_path":{"type":"string"},
-                        "binary_segs_maps_tif_path":{"type":"string"},
-                        "cell_seg_data_txt_path":{"type":"string"},
-                        "score_data_txt_path":{"type":["string","null"]}
-                    }
+                        "component_data_tif_path":{
+                            "type":"string",
+                            "description":"A tif image with layers representative of channels measuring each stain."
+                        },
+                        "binary_segs_maps_tif_path":{
+                            "type":"string",
+                            "description":"A tif image with layers such as an optional processed image area mask, a nuclear and membrane mask index integer coded, and region mask."
+                        },
+                        "cell_seg_data_txt_path":{
+                            "type":"string",
+                            "description":"A file with the cell-phenotypes assigned per cell index, and mean intensity measures sufficient for infering any binary phenotypes."
+                        },
+                        "score_data_txt_path":{
+                            "type":"string",
+                            "description":"A file with one or two scores used in assigning binary phenotype thresholds."
+                        }
+                    },
+                    "required":[]
                 }
             }   
         },
@@ -35,6 +49,9 @@
         },
         "single_project_export":{
             "description":"A collection of exports, but may not contain all the threshold strategies.",
+            "annotations":{
+                "ref":"../annotations.json"
+            },
             "properties":{
                 "single_project_export_name":{"type":"string"},
                 "is_primary_mutually_exclusive_phenotyping":{
@@ -51,7 +68,12 @@
                 },
                 "rules":{
                     "type":"object",
+                    "description":"If there are multiple InForm exports present, these rules define which features of this export to keep on merge",
                     "properties":{
+                        "is_primary_mutually_exclusive_phenotyping":{
+                            "type":"boolean",
+                            "description":"if True, this project export is the basis for mutually exclusive phenotyping.  Other mutually exclusive phenotyping to captured from other exports should be converted to a binary phenotype in the rules defined here. At least one project must be primary."
+                        },
                         "mutually_exclusive_phenotypes_to_merge_as_binary_phenotypes":{
                             "description":"This export has been phenotyped for something intended downstream to be treated as a thresholded marker.",
                             "type":"array",
@@ -59,7 +81,7 @@
                                 "type":"object",
                                 "properties":{
                                     "mutually_exclusive_phenotype":{
-                                        "description":"This does NOT need to be a mutually exclusive phenotype defined by the panel.",
+                                        "description":"This needs to be a mutually exclusive phenotype defined by the annotations.",
                                         "type":"string"
                                     },
                                     "binary_phenotype_name":{
@@ -68,9 +90,17 @@
                                    }
                                }
                            }
-                       },
-                       "required":["is_primary_mutually_exclusive_phenotyping"]
-                    }
+                        },
+                        "binary_phenotypes_to_merge":{
+                            "description":"This is a list of binary phenotypes to keep from this project. If not set take merge all binary phenotypes.",
+                            "type":"array",
+                            "items":{
+                                "type":"string",
+                                "description":"Valid name of a binary phenotype."
+                            }
+                        },
+                    },
+                    "required":["is_primary_mutually_exclusive_phenotyping"]
                 },
                 "sampleExports":{
                     "type":"array",
@@ -83,6 +113,7 @@
     "properties":{
         "microns_per_pixel":{"type":"float"},
         "project_name":{"type":"string"},
+        "description":"A list of single project exports that can be combined.",
         "single_project_exports":{
             "type":"array",
             "description":"A list of one or more exports of the same project.",
