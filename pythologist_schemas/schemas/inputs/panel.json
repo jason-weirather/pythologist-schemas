@@ -53,7 +53,8 @@
                     "type":"string",
                     "description":"The platform this panel was built for."
                 }
-            }
+            },
+            "additionalProperties":false
         }
     },
     "required": ["stains","meta"]

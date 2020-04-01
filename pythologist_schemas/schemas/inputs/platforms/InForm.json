@@ -1,7 +1,6 @@
 {
     "$schema": "https://json-schema.org/schema#",
     "type": "object",
-    "description":"Describe expected components of an InForm project exports. This is a list of exports from the same project for the purpose of combining thresholding strategies.",
     "definitions":{
         "image_export":{
             "type":"object",
@@ -31,6 +30,7 @@
                             "description":"A file with one or two scores used in assigning binary phenotype thresholds."
                         }
                     },
+                    "additionalProperties":false,
                     "required":[]
                 }
             }   
@@ -45,26 +45,15 @@
                     "items":{"$ref":"#/definitions/image_export"}
                 }
             },
+            "additionalProperties":false,
             "required":["sample_name","image_exports"]
         },
         "single_project_export":{
             "description":"A collection of exports, but may not contain all the threshold strategies.",
-            "annotations":{
-                "ref":"../annotations.json"
-            },
             "properties":{
                 "single_project_export_name":{"type":"string"},
-                "is_primary_mutually_exclusive_phenotyping":{
-                            "type":"boolean",
-                            "description":"This project contains base phenotyping strategy.  At least one export must be true."
-                },
-                "scored_marker_names":{
-                            "description":"These are the thresholds to take from these. These should be among the marker_name variables defined in the panel.",
-                            "type":"array",
-                            "items":{
-                                "type":"string",
-                                "name":"marker_name"
-                            }
+                "annotations":{
+                    "ref":"../annotations.json"
                 },
                 "rules":{
                     "type":"object",
@@ -74,7 +63,7 @@
                             "type":"boolean",
                             "description":"if True, this project export is the basis for mutually exclusive phenotyping.  Other mutually exclusive phenotyping to captured from other exports should be converted to a binary phenotype in the rules defined here. At least one project must be primary."
                         },
-                        "mutually_exclusive_phenotypes_to_merge_as_binary_phenotypes":{
+                        "mutually_exclusive_phenotypes_to_keep_as_binary_phenotypes":{
                             "description":"This export has been phenotyped for something intended downstream to be treated as a thresholded marker.",
                             "type":"array",
                             "items":{
@@ -91,14 +80,14 @@
                                }
                            }
                         },
-                        "binary_phenotypes_to_merge":{
+                        "binary_phenotypes_to_keep":{
                             "description":"This is a list of binary phenotypes to keep from this project. If not set take merge all binary phenotypes.",
                             "type":"array",
                             "items":{
                                 "type":"string",
                                 "description":"Valid name of a binary phenotype."
                             }
-                        },
+                        }
                     },
                     "required":["is_primary_mutually_exclusive_phenotyping"]
                 },
@@ -107,17 +96,23 @@
                     "items":{"$ref":"#/definitions/sample_exports"}
                 }
             },
-            "required":["single_project_export_name","is_primary_mutually_exclusive_phenotyping","scored_marker_names","sample_exports"]
+            "additionalProperties":false,
+            "required":["annotations","single_project_export_name","is_primary_mutually_exclusive_phenotyping","rules","scored_marker_names","sample_exports"]
         }
     },
-    "properties":{
-        "microns_per_pixel":{"type":"float"},
-        "project_name":{"type":"string"},
-        "description":"A list of single project exports that can be combined.",
+     "properties":{
+        "microns_per_pixel":{"type":"number"},
         "single_project_exports":{
             "type":"array",
-            "description":"A list of one or more exports of the same project.",
+            "minItems":1,
+            "description":"Describe expected components of an InForm project exports. This is a list of exports from the same project for the purpose of combining thresholding strategies.",
             "items":{"$ref":"#/definitions/single_project_export"}
+        },
+        "meta":{
+            "type":"object",
+            "properties":{
+                "project_name":{"type":"string"}
+            }
         }
     },
     "required":["microns_per_pixel","single_project_exports"]

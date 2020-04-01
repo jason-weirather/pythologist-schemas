@@ -1,0 +1,19 @@
+{
+	"microns_per_pixel":0.496,
+	"meta":{
+    	"project_name":"T cell correlative"
+	},
+    "single_project_exports":[
+    	{
+    		"single_project_export_name":"PD-L1 scoring",
+    		"is_primary_mutually_exclusive_phenotyping":true,
+    		"threshold_marker_names":["PD-L1"],
+    		"annotations":{
+
+    		},
+    		"rules":{
+
+    		}
+    	}
+    ]		
+}
