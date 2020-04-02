@@ -2,29 +2,11 @@
     "$schema": "https://json-schema.org/schema#",
     "type": "object",
     "definitions":{
-        "image_export":{
-            "ref":"./InForm.json"
-        },
-        "sample_export":{
-            "type":"object",
-            "description":"A collection of imageExports that make up a sample.",
-            "properties":{
-                "sampleName":{"type":"string"},
-                "image_exports":{
-                    "type":"array",
-                    "items":{"$ref":"#/definitions/image_export"}
-                }
-            },
-            "additionalProperties":false,
-            "required":["sample_name","image_exports"]
-        },
-        "single_project_export":{
+        "single_InForm_export":{
             "description":"A collection of exports, but may not contain all the threshold strategies.",
             "properties":{
-                "single_project_export_name":{"type":"string"},
-                "annotations":{
-                    "ref":"../annotations.json"
-                },
+                "export_data":{"$ref":"file:InForm.json#/definitions/export_data"},
+                "annotations":{"ref":"file:inputs/annotations.json"},
                 "rules":{
                     "type":"object",
                     "description":"If there are multiple InForm exports present, these rules define which features of this export to keep on merge",
@@ -59,31 +41,34 @@
                             }
                         }
                     },
+                    "additionalProperties":false,
                     "required":["is_primary_mutually_exclusive_phenotyping"]
-                },
-                "sampleExports":{
-                    "type":"array",
-                    "items":{"$ref":"#/definitions/sample_exports"}
                 }
             },
             "additionalProperties":false,
-            "required":["annotations","single_project_export_name","is_primary_mutually_exclusive_phenotyping","rules","scored_marker_names","sample_exports"]
+            "required":["annotations","export_data","rules"]
         }
     },
      "properties":{
-        "microns_per_pixel":{"type":"number"},
-        "single_project_exports":{
+        "panel":{"$ref":"file:inputs/panel.json"},
+        "InForm_exports":{
             "type":"array",
             "minItems":1,
             "description":"Describe expected components of an InForm project exports. This is a list of exports from the same project for the purpose of combining thresholding strategies.",
-            "items":{"$ref":"#/definitions/single_project_export"}
+            "items":{"$ref":"file:inputs/platforms/InForm/InForm_compound.json#/definitions/single_InForm_export"}
         },
         "meta":{
             "type":"object",
             "properties":{
-                "project_name":{"type":"string"}
-            }
+                "image_name":{
+                    "type":"string",
+                    "description":"a base name"
+                },
+                "microns_per_pixel":{"type":"number"}
+            },
+            "additionalProperties":false,
+            "required":["image_name","microns_per_pixel"]
         }
     },
-    "required":["microns_per_pixel","single_project_exports"]
+    "required":["InForm_exports","meta","panel"]
 }
