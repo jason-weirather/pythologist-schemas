@@ -5,8 +5,11 @@
         "cell_seg_data_txt_path":"/my/directory/structure/picture_1_cell_seg_data.txt",
         "score_data_txt_path":"/my/directory/structure/picture_1_score_data.txt"
     },
-    "panel":{"$ref":"REPLACEME"},
-    "annotations":{"$ref":"REPLACEME"},
+    "panel":{
+        "markers":[],
+        "meta":{}
+    },
+    "annotations":{},
     "meta":{
         "image_name":"picture_1",
         "microns_per_pixel":0.496

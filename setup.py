@@ -11,6 +11,8 @@ setup(
   version='0.1.0',
   description='Check the assumptions of inputs for pythologist ahead of reading',
   long_description=long_description,
+  test_suite='nose2.collector.collector',
+  tests_require=['nose2'],
   url='https://github.com/jason-weirather/pythologist-schemas',
   author='Jason L Weirather',
   author_email='jason.weirather@gmail.com',
@@ -22,8 +24,7 @@ setup(
     'License :: OSI Approved :: Apache Software License'
   ],
   keywords='bioinformatics',
-  packages=['pythologist_schemas',
-            'pythologist_schemas.schemas'],
+  packages=['pythologist_schemas'],
   install_requires = ['jsonschema'],
   include_package_data = True,
   entry_points = {

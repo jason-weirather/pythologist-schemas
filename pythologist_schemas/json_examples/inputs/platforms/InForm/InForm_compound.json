@@ -7,7 +7,7 @@
                 "cell_seg_data_txt_path":"/my/directory/structure/picture_1_cell_seg_data.txt",
                 "score_data_txt_path":"/my/directory/structure/picture_1_score_data.txt"
             },
-            "annotations":{"$ref":"REPLACEME"},
+            "annotations":{},
             "rules":{
                 "is_primary_mutually_exclusive_phenotyping":true,
                 "mutually_exclusive_phenotypes_to_keep_as_binary_phenotypes":[{"CD68":"Macrophage"}],
@@ -15,7 +15,10 @@
             }
         }
     ],
-    "panel":{"$ref":"REPLACEME"},
+    "panel":{
+        "markers":[],
+        "meta":{}
+    },
     "meta":{
         "image_name":"picutre_1",
         "microns_per_pixel":0.496

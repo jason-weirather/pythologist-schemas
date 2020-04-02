@@ -1,4 +1,4 @@
-import argparse, json
+import argparse, json, os
 from jsonschema import Draft4Validator, RefResolver
 
 def get_validator(filename, base_uri=''):
@@ -13,7 +13,10 @@ def get_validator(filename, base_uri=''):
     for local resolution via base_uri of form file://{some_path}/)
     """
     def get_json_from_file(filename):
-        return json.loads(open(filename,'rt').read())
+        output = ''
+        with open(filename,'rt') as f:
+            output = f.read()
+        return json.loads(output)
     schema = get_json_from_file(filename)
     try:
         # Check schema via class method call. Works, despite IDE complaining
@@ -39,9 +42,10 @@ def do_inputs():
 def entry_point():
     args = do_inputs()
 
+_schema_dir = os.path.split(os.path.realpath(__file__))[0]
+
 #import json, os
 
 # Get the directory where our schemas are located
-#__schema_dir = os.path.split(os.path.realpath(__file__))[0]
 #panel = json.loads(open(os.path.join(__schema_dir,'panel.json'),'r').read())
 #report = json.loads(open(os.path.join(__schema_dir,'report.json'),'r').read())
