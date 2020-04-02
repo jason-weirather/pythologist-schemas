@@ -28,9 +28,9 @@
         }
     },
     "properties":{
-        "panel":{"$ref":"file:schemas/inputs/panel.json"},
-        "annotations":{"$ref":"file:schemas/inputs/annotations.json"},
-        "export_data":{"$ref":"file:schemas/inputs/platforms/InForm/InForm.json#/definitions/export_data"},
+        "panel":{"$ref":"file:inputs/panel.json"},
+        "annotations":{"$ref":"file:inputs/annotations.json"},
+        "export_data":{"$ref":"file:inputs/platforms/InForm/InForm.json#/definitions/export_data"},
         "meta":{
             "type":"object",
             "properties":{
