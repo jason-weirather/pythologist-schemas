@@ -1,43 +1,49 @@
 {
     "$schema": "https://json-schema.org/schema#",
     "type": "object",
+    "description":"Define a single image analyzed in InForm.",
     "definitions":{
-        "image_export":{
+        "export_data":{
+            "type":"object",
+            "description":"These are the paths of the data elements created from InForm exports, although none are explicitly required here, what can be done downstream depends which of these are available.",
+            "properties":{
+                "component_data_tif_path":{
+                    "type":"string",
+                    "description":"A tif image with layers representative of channels measuring each stain."
+                },
+                "binary_segs_maps_tif_path":{
+                    "type":"string",
+                    "description":"A tif image with layers such as an optional processed image area mask, a nuclear and membrane mask index integer coded, and region mask."
+                },
+                "cell_seg_data_txt_path":{
+                    "type":"string",
+                    "description":"A file with the cell-phenotypes assigned per cell index, and mean intensity measures sufficient for infering any binary phenotypes."
+                },
+                "score_data_txt_path":{
+                    "type":"string",
+                    "description":"A file with one or two scores used in assigning binary phenotype thresholds."
+                }
+            },
+            "additionalProperties":false,
+            "required":[]
+        }
+    },
+    "properties":{
+        "panel":{"$ref":"../../panel.json"},
+        "annotations":{"$ref":"../../annotations.json"},
+        "export_data":{"$ref":"#/definitions/export_data"},
+        "meta":{
             "type":"object",
             "properties":{
                 "image_name":{
                     "type":"string",
                     "description":"a base name"
                 },
-                "microns_per_pixel":{"type":"number"},
-                "annotations":{"ref":"../../annotations.json"},
-                "panel":{"ref":"../../panel.json"},
-                "export_data":{
-                    "type":"object",
-                    "description":"These are the paths of the data elements created from InForm exports, although none are explicitly required here, what can be done downstream depends which of these are available.",
-                    "properties":{
-                        "component_data_tif_path":{
-                            "type":"string",
-                            "description":"A tif image with layers representative of channels measuring each stain."
-                        },
-                        "binary_segs_maps_tif_path":{
-                            "type":"string",
-                            "description":"A tif image with layers such as an optional processed image area mask, a nuclear and membrane mask index integer coded, and region mask."
-                        },
-                        "cell_seg_data_txt_path":{
-                            "type":"string",
-                            "description":"A file with the cell-phenotypes assigned per cell index, and mean intensity measures sufficient for infering any binary phenotypes."
-                        },
-                        "score_data_txt_path":{
-                            "type":"string",
-                            "description":"A file with one or two scores used in assigning binary phenotype thresholds."
-                        }
-                    },
-                    "additionalProperties":false,
-                    "required":[]
-                }
-            }   
-        },
+                "microns_per_pixel":{"type":"number"}
+            },
+            "additionalProperties":false,
+            "required":["image_name","microns_per_pixel"]
+        }
     },
-    "required":["microns_per_pixel","image_name"]
+    "required":["panel","annotations","export_data","meta"]
 }

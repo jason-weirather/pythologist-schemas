@@ -51,11 +51,19 @@
                     "description":"A version to annotate this set of analyses."
                 },
                 "software":{
-                    "type":"string",
-                    "description":"The software package(s) and version used to produce the analyses."
+                    "type":"array",
+                    "description":"A list of software used to produce the annotations for these images.",
+                    "items":{
+                        "type":"object",
+                        "properties":{
+                            "software_name":{"type":"string"},
+                            "software_version":{"type":"string"}   
+                        },
+                        "required":["software_name"]
+                    }
                 }
             }
         }
     },
-    "required": ["annotations","meta"]
+    "additionalProperties":false
 }

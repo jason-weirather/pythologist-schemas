@@ -2,7 +2,7 @@
     "$schema": "https://json-schema.org/schema#",
     "type": "object",
     "properties": {
-        "stains":{
+        "markers":{
             "type": "array",
             "items": {
                 "type": "object",
@@ -14,7 +14,7 @@
                     },
                     "full_name":{
                         "type":"string",
-                        "description":"Descriptive name that is used in raw data to refer to the Stain."
+                        "description":"Descriptive name that is used in raw data to refer to the marker."
                     },
                     "compartment":{
                         "type":"string",
@@ -57,5 +57,6 @@
             "additionalProperties":false
         }
     },
-    "required": ["stains","meta"]
+    "additionalProperties":false,
+    "required": ["markers","meta"]
 }
