@@ -24,14 +24,13 @@
                     "description":"A file with one or two scores used in assigning binary phenotype thresholds."
                 }
             },
-            "additionalProperties":false,
-            "required":[]
+            "additionalProperties":false
         }
     },
     "properties":{
-        "panel":{"$ref":"../../panel.json"},
-        "annotations":{"$ref":"../../annotations.json"},
-        "export_data":{"$ref":"#/definitions/export_data"},
+        "panel":{"$ref":"file:schemas/inputs/panel.json"},
+        "annotations":{"$ref":"file:schemas/inputs/annotations.json"},
+        "export_data":{"$ref":"file:schemas/inputs/platforms/InForm/InForm.json#/definitions/export_data"},
         "meta":{
             "type":"object",
             "properties":{
