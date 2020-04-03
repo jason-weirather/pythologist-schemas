@@ -3,114 +3,214 @@
     "type": "object",
     "description":"A generic way of storing an image and its analyzed components",
     "definitions":{
-        "ImageData":{
+        "cartesian_coordinates":{
             "type":"object",
             "properties":{
-                "id":{
+                "x":{"type":"int"},
+                "y":{"type":"int"}
+            },
+            "required":["x","y"],
+            "additionalProperties":false
+        },
+        "index_coding":{
+            "type":"array",
+            "items":{
+                "type":"object",
+                "properties":{
+                    "index":{"type":"int"},
+                    "label":{"type":"string"}
+                },
+                "required":["index","label"],
+                "additionalProperties":false
+            }
+        },
+        "image_data":{
+            "type":"object",
+            "properties":{
+                "image_id":{
                     "type":"string",
                     "description":"A UUID4 to identify the image data in an object"
                 },
-                "Meta":{
+                "image_attributes":{
                     "type":"object",
                     "properties":{
-                        "Label":{"type":"string"},
-                        "Description":{"type":"string"},                        
-                        "ImageSize":{
-                            "type":"object",
-                            "properties":{
-                                "x":{"type":"int"},
-                                "y":{"type":"int"}
-                            },
-                            "required":["x","y"]
-                        }
+                        "label":{"type":"string"},
+                        "image_size":{"$ref":"#/definitions/cartesian_coordinates"}
+                    },
+                    "additionalProperties":false
+                },
+                "meta":{
+                    "type":"object",
+                    "properties":{
+                        "description":{"type":"string"}
                     }
                 }
             },
-            "required":["ID"]
+            "required":["ID"],
+            "additionalProperties":false
         },
-        "BinaryMaskImage":{
+        "binary_mask_image":{
             "allOf":[
-                {"$ref":"#/definitions/ImageData"},
+                {"$ref":"#/definitions/image_data"},
                 {
                     "properties":{
-                        "Type":{
-                            "type":"string",
-                            "enum":["ProcessedImage","MutuallyExclusiveRegion","Other"]
-                        },
-                        "MaskedAreaPixels":{"type":"int"}
+                        "mask_attributes":{
+                            "type":"object",
+                            "properties":{
+                                "mask_label":{"type":"string"},
+                                "type":{
+                                    "type":"string",
+                                    "enum":["ProcessedImage","FeatureAnnotation","Other"]
+                                },
+                                "area":{
+                                    "type":"int",
+                                    "description":"Area in pixels."
+                                },
+                                "label":{
+                                    "type":"string",
+                                    "description":"The label of the masked element."
+                                }
+                            },
+                            "additionalProperties":false,
+                            "required":["type","area","label"]
+                        }
                     },
-                    "required":["Type","MaskedAreaPixels"]
+                    "additionalProperties":false,
+                    "required":["mask_attributes"]
                  }
             ]
         },
-        "IndexedSegmentationImage":{
+        "indexed_mask_image":{
             "allOf":[
-                {"$ref":"#/definitions/ImageData"},
+                {"$ref":"#/definitions/image_data"},
                 {
                     "properties":{
-                        "Type":{
-                            "type":"string",
-                            "enum":["Nuclear","Membrane","Other"]
+                        "indexed_mask_attributes":{
+                            "type":"object",
+                            "properties":{
+                                "mask_label":{"type":"string"},
+                                "type":{
+                                    "type":"string",
+                                    "enum":["Annotations","MutuallyExclusiveRegions","Other"]
+                                },
+                                "index_labels":{
+                                    "type":"array",
+                                    "items":{
+                                        "type":"object",
+                                        "properties":{
+                                            "index":{"type":"int"},
+                                            "label":{"type":"string"},
+                                            "area":{
+                                                "type":"string",
+                                                "description":"Area in pixels"
+                                            }
+                                        },
+                                        "required":["index","label","area"],
+                                        "additionalProperties":false
+                                    }
+                                }
+                            },
+                            "additionalProperties":false,
+                            "required":["type","labels"]
                         }
                     },
-                    "required":["Type"]
+                    "additionalProperties":false,
+                    "required":["indexed_mask_attributes"]
+                 }
+            ]
+        },
+        "indexed_segmentation_image":{
+            "allOf":[
+                {"$ref":"#/definitions/image_data"},
+                {
+                    "properties":{
+                        "segmentation_image_attributes":{
+                            "type":"object",
+                            "properties":{
+                                "type":{
+                                    "type":"string",
+                                    "enum":["Nuclear","Membrane","Other"]
+                                }
+                            },
+                            "additionalProperties":false,
+                            "required":["type"]
+                        }
+                    },
+                    "required":"segmentation_image_attributes"
+                }
+            ],
+            "description":"A one-based integer coded representation of the segmentation that is ordered identically to the cell_data."            
+        },
+        "component_image":{
+            "allOf":[
+                {"$ref":"#/definitions/image_data"},
+                {
+                    "properties":{
+                        "component_image_attributes":{
+                            "type":"object",
+                            "properties":{
+                                "marker_name":{
+                                    "type":"string"
+                                }
+                            },
+                            "required":["marker_name"],
+                            "additionalProperties":false
+                        }
+                    },
+                    "required":["component_image_attributes"],
+                    "additionalProperties":false
                 }
             ]            
         },
-        "ComponentImage":{
-            "allOf":[
-                {"$ref":"#/definitions/ImageData"},
-                {
-                    "properties":{
-                        "MarkerName":{
-                            "type":"string"
-                        }
-                    },
-                    "required":["MarkerName"]
-                }
-            ]            
-        },
-        "CellData":{
+        "cell_attributes":{
             "type":"object",
+            "description":"Text-data for a single cell.",
             "properties":{
-                "Index":{
+                "index":{
                     "type":"int",
-                    "description":"Integer index that ties a cell to a mask in an IndexedSegmentationImage."
+                    "description":"Index that ties a cell to a mask in an indexed_segmentation_image."
                 },
-                "CartesianCoordiantes":{
-                    "type":"object",
-                    "properties":{
-                        "x":{"type":"int"},
-                        "y":{"type":"int"}
-                    },
-                    "required":["x","y"]
-                },
-                "MutuallyExclusiveRegion":{"type":"string"},
-                "MutuallyExclusivePhenotype":{"type":"string"},
-                "Thresholds":{
+                "cartesian_coordiantes":{"$ref":"#/definitions/cartesian_coordinates"},
+                "mutually_exclusive_region_labels":{
                     "type":"array",
+                    "description":"For a list of defined mutually exclusive region masks, specify what the label is for each.",
                     "items":{
                         "type":"object",
                         "properties":{
-                            "MarkerName":{"type":"string"},
-                            "FilterStatus":{
+                            "mask_label":{"type":"string"},
+                            "region_label":{"type":"string"}
+                        }
+                    },
+                },
+                "mutually_exclusive_phenotype_label":{
+                    "type":"string",
+                    "description":"For a selected set of mutually exclusive phenotypes, list the specific label."
+                },
+                "binary_phenotypes":{
+                    "type":"array",
+                    "description":"This element describes all of the binary phenotype properties for this cell.",
+                    "items":{
+                        "type":"object",
+                        "properties":{
+                            "name":{
                                 "type":"string",
+                                "description":"The binary_phenotype_name"
+                            },
+                            "status":{
+                                "type":"string",
+                                "description":"The filter status of this Cell's binary phenotype.",
                                 "enum":["+","-"]
                             }
                         },
-                        "required":["MarkerName","FilterStatus"]
+                        "required":["name","status"]
                     }
                 },
-                "Channels":{
+                "channel_measurements":{
                     "type":"array",
                     "items":{
                         "type":"object",
-                        "MarkerName":{"type":"string"},
-                        "ThresholdFilterStatus":{
-                            "type":["string"],
-                            "enum":["+","-","null"]
-                        },
-                        "MeanIntensities":{
+                        "marker_name":{"type":"string"},
+                        "mean_intensities":{
                             "type":"array",
                             "items":{
                                 "type":"object",
@@ -123,29 +223,35 @@
                         }
                     }
                 },
-                "Contacts":{
+                "cell_contacts":{
                     "type":"array",
                     "items":{"type":"int"},
                     "description":"If calculated/included, this is an array of Indicies of other cells in direct contact with this cell."
                 }
+            },
+            "required":["index",
+                        "cartesian_coordiantes",
+                        "mutually_exclusive_region_label",
+                        "mutually_exclusive_phenotype_label",
+                        "binary_phenotypes"],
+            "additionalProperties":false
+        }
+    },
+    "properties":{
+        "image_label":{"type":"string"},
+        "harmonized_cellular_image_attributes":{
+            "type":"object",
+            "properties":{
+                "image_label":{"type":"string"},
+                "image_size":{"$ref":"#/definitions/cartesian_coordinates"},
+                "image_id":{
+                    "type":"string",
+                    "description":"A UUID4 identifier to uniquely label a data object containing a harmonized cellular image"
+                }
             }
         },
-        "AnalyzedImage":{
-            "type":"object",
-            "properties": {
-                "ImageName":{"type":"string"},
-                "ImageSize":{
-                    "type":"object",
-                    "properties":{
-                        "x":{"type":"int"},
-                        "y":{"type":"int"}
-                    },
-                    "required":["x","y"]
-                },
-                "ProcessedImageMask":{
-                    "type":{"$ref":"#/definitions/BinaryMaskImage"}            
-                },
-                "MutuallyExclusiveRegionMasks":{
+        "processed_image_mask":{"$ref":"#/definitions/binary_mask_image"},
+        "mutually_exclusive_region_masks":{
                      "type":"array",
                      "items":{
                          "allOf":[
@@ -177,28 +283,5 @@
                 }
             },
             "required":["ImageName","ImageSize","ProcessedImageMask","RegionMasks","Segmentations","Components","CellDataFrame"]
-        },
-        "AnalyzedSample":{
-            "type":"object",
-            "description":"A collection of Images that make up one sample.",
-            "properties":{
-                "SampleName":{"type":"string"},
-                "AnalyzedImages":{
-                    "type":"array",
-                    "items":{"$ref":"#/definitions/AnalyzedImage"}
-                }
-            }
-        }
-    },
-    "properties":{
-        "type":"object",
-        "description":"A project that has been analyzed and is staged for data extraction and interrogation.",
-        "properties":{
-            "ProjectName":{"type":"string"},
-            "AnalyzedSamples":{
-                "type":"array",
-                "items":{"$ref":"#/definitions/AnalyzedSample"}
-            }
-        }
     }
 }

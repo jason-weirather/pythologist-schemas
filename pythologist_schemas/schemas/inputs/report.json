@@ -25,7 +25,7 @@
                     "type":"object",
                     "description":"Properties of a region definition that define its behavior.",
                     "properties":{
-                        "MutuallyExclusiveRegions":{
+                        "mutually_exclusive_regions":{
                             "type":"array",
                             "description":"Set of mutually exclusive regions that define the region.",
                             "items":{"type":"string"}
@@ -86,7 +86,7 @@
                     }
                 }
             },
-            "required":["rules","label"],
+            "required":["rules"],
             "additionalProperties":false
         },
         "percentage":{
@@ -103,8 +103,8 @@
                         "Description":{"type":"string"}
                     }
                 },
-                "numerator":{"$ref":"file:inputs/report.json#/definitions/population"},
-                "denominator":{"$ref":"file:inputs/report.json#/definitions/population"}
+                "numerator":{"$ref":"#/definitions/population"},
+                "denominator":{"$ref":"#/definitions/population"}
             },
             "required":["label","numerator","denominator"],
             "additionalProperties":false
@@ -129,7 +129,7 @@
             "items":{
                 "allOf":[
                     {"$ref":"file:inputs/report.json#/definitions/population"},
-                    {"required":["label"]}
+                    {"required":["label","rules"]}
                 ]
             }
         },
