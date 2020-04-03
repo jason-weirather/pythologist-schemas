@@ -47,12 +47,11 @@
                     "type":"object",
                     "description":"Properties describing a population that do not affect what it defines.",
                     "properties":{
-                        "description":{
+                        "Description":{
                             "type":"string",
                             "description":"A description of the population."
                         }
-                    },
-                    "additionalProperties":false
+                    }
                 },
                 "rules":{
                     "type":"object",
@@ -60,19 +59,19 @@
                     "properties":{
                         "mutually_exclusive_phenotypes":{
                             "type":"array",
-                            "description":"Set of mutually exclusive phenotypes that define the population.  If nothing is set, assume it can be any phenotype. This filter is applied first.",
+                            "description":"Set of mutually exclusive phenotypes that define the population.  If nothing is set, assume it can be any phenotype.",
                             "items":{"type":"string"}
                         },
                         "threshold_strategies":{
                             "type":"array",
-                            "description":"Keyed by marker abbreviation that have been analyzed for being positive or negative. If a thresholded marker is not declared here, do not filter the population based on it. This filter is applied second, after mutual exclusive phenotypes.",
+                            "description":"Keyed by marker abbreviation that have been analyzed for being positive or negative. If a thresholded marker is not declared here, do not filter the population based on it.",
                             "items":{
                                 "type":"object",
                                 "description":"The positive or negative status of the filter",
                                 "properties":{
                                     "marker_name":{
                                         "type":"string",
-                                        "description":"This is the same marker_name as defined in the panel stains."
+                                        "description":"This is the same markerName as defined in the panel stains."
                                     },
                                     "threshold_strategy":{
                                         "type":"string",
@@ -86,8 +85,7 @@
                     }
                 }
             },
-            "required":["rules","label"],
-            "additionalProperties":false
+            "required":["rules"]
         },
         "percentage":{
             "type":"object",
@@ -103,8 +101,8 @@
                         "Description":{"type":"string"}
                     }
                 },
-                "numerator":{"$ref":"file:inputs/report.json#/definitions/population"},
-                "denominator":{"$ref":"file:inputs/report.json#/definitions/population"}
+                "numerator":{"$ref":"#/definitions/population"},
+                "denominator":{"$ref":"#/definitions/population"}
             },
             "required":["label","numerator","denominator"],
             "additionalProperties":false
@@ -121,23 +119,22 @@
         "regions":{
             "description":"A list of regions each of which will have populations/percentages reported upon.",
             "type":"array",
-            "items":{"$ref":"file:inputs/report.json#/definitions/region"}
+            "items":{"$ref":"#/definitions/region"}
         },
         "populations":{
             "type":"array",
             "description":"The Label for each population here is required since this will be needed to format the report output.",
             "items":{
                 "allOf":[
-                    {"$ref":"file:inputs/report.json#/definitions/population"},
+                    {"$ref":"#/definitions/population"},
                     {"required":["label"]}
                 ]
             }
         },
         "percentages":{
             "type":"array",
-            "items":{"$ref":"file:inputs/report.json#/definitions/percentage"}
+            "items":{"$ref":"#/definitions/percentage"}
         }
     },      
-    "additionalProperties":false,
-    "required":["regions"]
+    "additionalProperties":false
 }
