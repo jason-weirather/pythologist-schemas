@@ -6,8 +6,8 @@
         "cartesian_coordinates":{
             "type":"object",
             "properties":{
-                "x":{"type":"int"},
-                "y":{"type":"int"}
+                "x":{"type":"integer"},
+                "y":{"type":"integer"}
             },
             "required":["x","y"],
             "additionalProperties":false
@@ -17,7 +17,7 @@
             "items":{
                 "type":"object",
                 "properties":{
-                    "index":{"type":"int"},
+                    "index":{"type":"integer"},
                     "label":{"type":"string"}
                 },
                 "required":["index","label"],
@@ -63,7 +63,7 @@
                                     "enum":["ProcessedImage","FeatureAnnotation","Other"]
                                 },
                                 "area":{
-                                    "type":"int",
+                                    "type":"integer",
                                     "description":"Area in pixels."
                                 },
                                 "label":{
@@ -98,7 +98,7 @@
                                     "items":{
                                         "type":"object",
                                         "properties":{
-                                            "index":{"type":"int"},
+                                            "index":{"type":"integer"},
                                             "label":{"type":"string"},
                                             "area":{
                                                 "type":"string",
@@ -128,7 +128,7 @@
                             "type":"object",
                             "segmentation_label":{"type":"string"},
                             "properties":{
-                                "is_primary":"boolean",
+                                "is_primary":{"type":"boolean"},
                                 "type":{
                                     "type":"string",
                                     "enum":["Nuclear","Membrane","Other"]
@@ -138,7 +138,8 @@
                             "required":["type","segmentation_label","is_primary"]
                         }
                     },
-                    "required":"segmentation_image_attributes"
+                    "required":["segmentation_image_attributes"],
+                    "additionalProperties":false
                 }
             ],
             "description":"A one-based integer coded representation of the segmentation that is ordered identically to the cell_data."            
@@ -169,12 +170,12 @@
             "description":"Text-data for a single cell.",
             "properties":{
                 "index":{
-                    "type":"int",
+                    "type":"integer",
                     "description":"Index that ties a cell to a mask in an indexed_segmentation_image."
                 },
                 "cartesian_coordiantes":{"$ref":"#/definitions/cartesian_coordinates"},
-                "area":{"type":"int"},
-                "edge_length":{"type":"int"},
+                "area":{"type":"integer"},
+                "edge_length":{"type":"integer"},
                 "mutually_exclusive_regions":{
                     "type":"array",
                     "description":"For a list of defined mutually exclusive region masks, specify what the label is for each.",
@@ -243,7 +244,7 @@
                 },
                 "cell_contacts":{
                     "type":"array",
-                    "items":{"type":"int"},
+                    "items":{"type":"integer"},
                     "description":"If calculated/included, this is an array of Indicies of other cells in direct contact with this cell."
                 }
             },
@@ -272,15 +273,15 @@
         "processed_image_mask":{"$ref":"#/definitions/binary_mask_image"},
         "segmentation_masks":{
             "type":"array",
-            "items":{
-                "type":{"$ref":"#/definitions/indexed_segmentation_image"}
-            }
+            "items":{"$ref":"#/definitions/indexed_segmentation_image"}
         },
         "mutually_exclusive_region_masks":{
             "type":"array",
-            "items":{
-                "type":{"$ref":"#/definitions/indexed_mask_image"}
-            }
+            "items":{"$ref":"#/definitions/indexed_mask_image"}
+        },
+        "cell_data":{
+            "type":"array",
+            "items":{"$ref":"#/definitions/cell_attributes"}
         },
         "mutually_exclusive_phenotype_strategies":{
             "type":"array",
@@ -292,16 +293,10 @@
                     "mutually_exclusive_phenotypes":{
                         "type":"array",
                         "items":{"type":"string"}
-                    },
-                    "required":["strategy","mutually_exclusive_phenotypes"],
-                    "additionalProperties":false
-                }
-            }
-        },
-        "cell_data":{
-            "type":"array",
-            "items":{
-                "type":{"$ref":"#/definitions/cell_attributes"}
+                    }
+                },
+                "required":["strategy","mutually_exclusive_phenotypes"],
+                "additionalProperties":false
             }
         }
     },
