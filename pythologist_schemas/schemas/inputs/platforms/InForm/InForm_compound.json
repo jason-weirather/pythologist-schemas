@@ -57,18 +57,8 @@
             "description":"Describe expected components of an InForm project exports. This is a list of exports from the same project for the purpose of combining thresholding strategies.",
             "items":{"$ref":"file:inputs/platforms/InForm/InForm_compound.json#/definitions/single_InForm_export"}
         },
-        "meta":{
-            "type":"object",
-            "properties":{
-                "image_name":{
-                    "type":"string",
-                    "description":"a base name"
-                },
-                "microns_per_pixel":{"type":"number"}
-            },
-            "additionalProperties":false,
-            "required":["image_name","microns_per_pixel"]
-        }
+        "meta":{"$ref":"file:inputs/platforms/InForm/InForm.json#/definitions/meta"},
+        "image_attributes":{"$ref":"file:inputs/platforms/InForm/InForm.json#/definitions/image_attributes"}
     },
-    "required":["InForm_exports","meta","panel"]
+    "required":["InForm_exports","image_attributes","panel"]
 }

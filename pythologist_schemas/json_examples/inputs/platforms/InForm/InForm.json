@@ -10,8 +10,11 @@
         "meta":{}
     },
     "annotations":{},
+    "image_attributes":{
+        "image_label":"picture_1",
+        "microns_per_pixel":0.496        
+    },
     "meta":{
-        "image_name":"picture_1",
-        "microns_per_pixel":0.496
+        "description":"My best work yet."
     }
 }

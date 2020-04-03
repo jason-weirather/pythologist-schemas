@@ -25,24 +25,40 @@
                 }
             },
             "additionalProperties":false
+        },
+        "meta":{
+            "type":"object",
+            "properties":{
+                "description":{
+                    "type":"string",
+                    "description":"A description of the image."
+                }
+            },
+            "additionalProperties":false
+        },
+        "image_attributes":{
+            "type":"object",
+            "properties":{
+                "microns_per_pixel":{
+                    "type":"number",
+                    "description":"Conversion factor between micros and pixels."
+                },
+                "image_label":{
+                    "type":"string",
+                    "description":"a base name"
+                }
+            },
+            "additionalProperties":false,
+            "required":["microns_per_pixel","image_label"]
         }
     },
     "properties":{
         "panel":{"$ref":"file:inputs/panel.json"},
         "annotations":{"$ref":"file:inputs/annotations.json"},
         "export_data":{"$ref":"file:inputs/platforms/InForm/InForm.json#/definitions/export_data"},
-        "meta":{
-            "type":"object",
-            "properties":{
-                "image_name":{
-                    "type":"string",
-                    "description":"a base name"
-                },
-                "microns_per_pixel":{"type":"number"}
-            },
-            "additionalProperties":false,
-            "required":["image_name","microns_per_pixel"]
-        }
+        "meta":{"$ref":"file:inputs/platforms/InForm/InForm.json#/definitions/meta"},
+        "image_attributes":{"$ref":"file:inputs/platforms/InForm/InForm.json#/definitions/image_attributes"}
     },
-    "required":["panel","annotations","export_data","meta"]
+    "additionalProperties":false,
+    "required":["panel","annotations","export_data","image_attributes"]
 }

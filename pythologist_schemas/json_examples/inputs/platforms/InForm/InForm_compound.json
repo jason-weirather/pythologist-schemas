@@ -19,8 +19,11 @@
         "markers":[],
         "meta":{}
     },
-    "meta":{
-        "image_name":"picutre_1",
+    "image_attributes":{
+        "image_label":"picutre_1",
         "microns_per_pixel":0.496
+    },
+    "meta":{
+        "description":"My best work yet."
     }
 }
