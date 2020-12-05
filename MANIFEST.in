@@ -1,1 +1,2 @@
-include pythologist_validator/schemas/*.json
+include pythologist_validator/schema_data/*.json
+include pythologist_validator/schema_data/inputs/*.json

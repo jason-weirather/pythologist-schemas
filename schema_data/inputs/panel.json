@@ -9,25 +9,25 @@
                 "description": "Stain marker names are keys to these properites.",
                 "properties":{
                     "marker_name":{
+                        "title":"Target Name",
                         "type":"string",
                         "description":"Short name unique to each entry."
                     },
                     "full_name":{
+                        "title":"Full Platform Name",
                         "type":"string",
                         "description":"Descriptive name that is used in raw data to refer to the marker."
                     },
                     "compartment":{
+                        "title":"Compartment",
                         "type":"string",
                         "description":"Which cellular component this marker is expected to stain.",
                         "enum":["Nuclear","Membrane","Whole Cell","Other"]
                     },
                     "lineage_marker":{
+                        "title":"Lineage Marker",
                         "type":["boolean", "null"],
                         "description":"This marker is expected to be used in determining mutually exclusive cell phenotypes."
-                    },
-                    "thresholding":{
-                        "type":["boolean", "null"],
-                        "description":"This marker is expected to be set by a threshold to call it as positive or negative."
                     }
                 },
                 "additionalProperties":false,

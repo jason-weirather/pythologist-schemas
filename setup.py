@@ -24,10 +24,13 @@ setup(
     'License :: OSI Approved :: Apache Software License'
   ],
   keywords='bioinformatics',
-  packages=['pythologist_schemas'],
-  install_requires = ['jsonschema'],
+  packages=['pythologist_schemas',
+            'schema_data',
+            'schema_data.inputs'],
+  install_requires = ['jsonschema','importlib_resources'],
   include_package_data = True,
   entry_points = {
-    'console_scripts':['pythologist-validator=pythologist_schemas:entry_point']
+    'console_scripts':['pythologist-validator=pythologist_schemas.cli.validator:cli',
+                       'pythologist-templates=pythologist_schemas.cli.templates:cli']
   }
 )
