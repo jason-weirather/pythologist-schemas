@@ -67,7 +67,7 @@
                     },
                     "target_name":{
                         "title":"Target Name",
-                        "description":"This needs to be a mutually exclusive phenotype defined by the annotations.",
+                        "description":"This is a Target Name from the panel. These should not have a trailing positive or negative sign in them defined here, since that annotation will be used when applying filters.",
                         "type":"string"
                     }
                 },

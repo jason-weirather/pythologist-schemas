@@ -12,7 +12,7 @@
                     "marker_name":{
                         "title":"Target Name",
                         "type":"string",
-                        "description":"Short name unique to each entry."
+                        "description":"Short name unique to each entry. These should not have a trailing positive or negative sign since that annotation could be need for describing filters."
                     },
                     "full_name":{
                         "title":"Full Platform Name",

@@ -34,6 +34,7 @@ def main(args):
    if args.panel_output: do_panel_output(args)
    if args.project_output: do_project_folder_output(args)
    if args.analysis_output: do_analysis_output(args)
+   if args.report_output: do_report_output(args)
 
    return
 
@@ -86,6 +87,37 @@ def _fix_width(worksheet,min_width=20,padding=3):
             column_widths += [min_width if len(cell.value)+padding < min_width else len(cell.value)+padding]
    for i, column_width in enumerate(column_widths):
       worksheet.column_dimensions[get_column_letter(i+1)].width = column_width
+
+
+def do_report_output(args):
+   _validator = get_validator(files('schema_data').joinpath('report.json'))
+   _schema = _validator.schema
+   wb = Workbook()
+   default_names = wb.sheetnames
+   wb.add_named_style(highlight)
+
+   _oname = args.report_output
+
+   # Start with the Metadata. Write the header and the value names
+
+   ws0 = wb.create_sheet(_schema['properties']['parameters']['title'])
+   _write_parameters(ws0,_schema['properties']['parameters'])
+   _fix_width(ws0)
+
+   ws1 = wb.create_sheet(_schema['properties']['population_percentages']['title'])
+   _write_repeating(ws1,_schema['properties']['population_percentages'])
+   _fix_width(ws1)
+
+   ws2 = wb.create_sheet(_schema['properties']['population_densities']['title'])
+   _write_repeating(ws2,_schema['properties']['population_densities'])
+   _fix_width(ws2)
+
+   # cleanup workbook deleting default sheet name
+   for _sheet_name in default_names:
+      #print(_sheet_name)
+      del wb[_sheet_name]
+   wb.save(filename = _oname)
+   return
 
 def do_analysis_output(args):
    _validator1 = get_validator(files('schema_data.inputs').joinpath('panel.json'))
@@ -153,11 +185,13 @@ def do_project_folder_output(args):
 
    ws1 = wb.create_sheet(_schema['properties']['parameters']['title'])
    _write_parameters(ws1,_schema['properties']['parameters'])
+   _fix_width(ws1)
 
 
    # Now lets make the Panel.  Write the header only.
    ws2 = wb.create_sheet(_schema['properties']['samples']['title'])
    _write_repeating(ws2,_schema['properties']['samples'])
+   _fix_width(ws2)
 
    # cleanup workbook deleting default sheet name
    for _sheet_name in default_names:
@@ -181,11 +215,13 @@ def do_panel_output(args):
 
    ws1 = wb.create_sheet(_schema['properties']['parameters']['title'])
    _write_parameters(ws1,_schema['properties']['parameters'])
+   _fix_width(ws1)
 
 
    # Now lets make the Panel.  Write the header only.
    ws2 = wb.create_sheet(_schema['properties']['markers']['title'])
    _write_repeating(ws2,_schema['properties']['markers'])
+   _fix_width(ws2)
 
    # cleanup workbook deleting default sheet name
    for _sheet_name in default_names:
@@ -201,6 +237,7 @@ def do_inputs():
    parser.add_argument('--panel_output',help="How to output the panel variable")
    parser.add_argument('--project_output',help="How to output the panel variable")
    parser.add_argument('--analysis_output',help="How to output the panel variable")
+   parser.add_argument('--report_output',help="How to output the panel variable")
    args = parser.parse_args()
    return args
 
