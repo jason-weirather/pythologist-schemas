@@ -1,2 +1,3 @@
 include pythologist_validator/schema_data/*.json
 include pythologist_validator/schema_data/inputs/*.json
+include pythologist_validator/schema_data/inputs/platforms/*/*.json

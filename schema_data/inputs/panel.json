@@ -3,6 +3,7 @@
     "type": "object",
     "properties": {
         "markers":{
+            "title":"Panel",
             "type": "array",
             "items": {
                 "type": "object",
@@ -34,22 +35,27 @@
                 "required":["marker_name","full_name"]
             }
         },
-        "meta": {
+        "parameters": {
+            "title":"Parameters",
             "type": "object",
             "properties":{
-                "label":{
+                "panel_name":{
+                    "title":"Panel Name",
                     "type":"string",
                     "description":"The panel name."
                 },
-                "description":{
+                "panel_description":{
+                    "title":"Panel Description",
                     "type":"string",
                     "description":"A description of the panel."
                 },
-                "version":{
+                "panel_version":{
+                    "title":"Panel Version",
                     "type":"string",
                     "description":"A version of the panel."
                 },
-                "platform":{
+                "panel_platform":{
+                    "title":"Panel Platform",
                     "type":"string",
                     "description":"The platform this panel was built for."
                 }

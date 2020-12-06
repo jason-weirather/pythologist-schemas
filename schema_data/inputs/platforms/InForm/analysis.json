@@ -1,0 +1,129 @@
+{
+    "$schema": "https://json-schema.org/schema#",
+    "type": "object",
+    "properties":{
+        "inform_exports":{
+            "title":"Exports",
+            "type":"array",
+            "minItems":1,
+            "description":"Describe expected components of an InForm project exports. This is a list of exports from the same project for the purpose of combining thresholding strategies.",
+            "items":{
+                "type":"object",
+                "properties":{
+                    "export_name":{
+                        "title":"Export Name",
+                        "description":"Name of the export",
+                        "type":"string"
+                    },
+                    "primary_phenotyping":{
+                        "title":"Primary Phenotyping",
+                        "description":"If yes, this is the InForm export that will be the basis for the mutually exclusive phenotypes. Only one of the exports can be a Yes.",
+                        "type":"string",
+                        "enum":["Yes","No"]
+                    }
+                },
+                "additionalProperties":false,
+                "required":["export_name"]
+            }
+        },
+        "mutually_exclusive_phenotypes":{
+            "title":"Mutually Exclusive Phenotypes",
+            "description":"Phenotypes that do not overlap.",
+            "type":"array",
+            "items":{
+                "type":"object",
+                "properties":{
+                    "export_name":{
+                        "title":"Export Name",
+                        "description":"This needs to be a mutually exclusive phenotype defined by the annotations.",
+                        "type":"string"
+                    },
+                    "phenotype_name":{
+                        "title":"Phenotype Name",
+                        "description":"This needs to be a mutually exclusive phenotype defined by the annotations.",
+                        "type":"string"
+                    },
+                    "convert_to_binary":{
+                        "title":"Convert to Binary Phenotype",
+                        "description":"If yes, this mutually exclusive phenotype will be converted to a binary phenotype.",
+                        "type":"string"
+                    }
+                },
+                "additionalProperties":false,
+                "required":["export_name","phenotype_name"]
+            }
+        },
+        "binary_phenotypes":{
+            "title":"Binary Phenotypes",
+            "description":"This is a list of binary phenotypes to keep from this project.",
+            "type":"array",
+            "items":{
+                "type":"object",
+                "properties":{
+                    "export_name":{
+                        "title":"Export Name",
+                        "description":"This needs to be a mutually exclusive phenotype defined by the annotations.",
+                        "type":"string"
+                    },
+                    "target_name":{
+                        "title":"Target Name",
+                        "description":"This needs to be a mutually exclusive phenotype defined by the annotations.",
+                        "type":"string"
+                    }
+                },
+                "additionalProperties":false,
+                "required":["export_name","target_name"]
+            }
+        },
+        "regions":{
+            "title":"Regions",
+            "description":"Phenotypes that do not overlap.",
+            "type":"array",
+            "items":{
+                "type":"object",
+                "properties":{
+                    "region_name":{
+                            "title":"Region Name",
+                            "type":"string",
+                            "description":"The name defining a region."                    
+                    }
+                },
+                "additionalProperties":false,
+                "required":["region"]
+            }
+        },
+        "parameters":{
+            "title":"Parameters",
+            "type":"object",
+            "description":"Parameters describing the analysis",
+            "properties":{
+                "analysis_name":{
+                    "title":"Analysis Name",
+                    "description":"Name of the export",
+                    "type":"string"
+                },
+                "analysis_version":{
+                    "title":"Analysis Version",
+                    "description":"Name of the export",
+                    "type":"string"
+                },
+                "region_annotation_strategy":{
+                    "title":"Region Annotation Strategy",
+                    "description":"Type of regions being used",
+                    "type":"string",
+                    "enum":["None",""]
+                },
+                "draw_margin_width":{
+                    "title":"Draw Margin Width (px)",
+                    "description":"The width of tool used to draw the margin if a hand annotated file is included",
+                    "type":"string"
+                }
+            },
+            "additionalProperties":false,
+            "required":["analysis_name","analysis_version","region_annotation_strategy"]
+        }
+    },
+    "additionalProperties":false,
+    "required":["inform_exports","mutually_exclusive_phenotypes","binary_phenotypes","regions","meta"]
+
+}
