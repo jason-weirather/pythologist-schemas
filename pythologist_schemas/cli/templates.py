@@ -31,7 +31,7 @@ def main(args):
 
    # Lets start with the panel
 
-   if args.panel_output: do_panel_output(args)
+   #if args.panel_output: do_panel_output(args)
    if args.project_output: do_project_folder_output(args)
    if args.analysis_output: do_analysis_output(args)
    if args.report_output: do_report_output(args)
@@ -234,7 +234,7 @@ def do_inputs():
             description = "",
             formatter_class=argparse.ArgumentDefaultsHelpFormatter)
    parser.add_argument('--platform',metavar='platform_name',choices=['InForm'],default='InForm',help="The input platform format")
-   parser.add_argument('--panel_output',help="How to output the panel variable")
+   #parser.add_argument('--panel_output',help="How to output the panel variable") # no need to output panel only since for InForm we wrap it into analysis
    parser.add_argument('--project_output',help="How to output the panel variable")
    parser.add_argument('--analysis_output',help="How to output the panel variable")
    parser.add_argument('--report_output',help="How to output the panel variable")
