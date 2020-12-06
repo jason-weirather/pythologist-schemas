@@ -89,7 +89,7 @@
                     }
                 },
                 "additionalProperties":false,
-                "required":["region"]
+                "required":["region_name"]
             }
         },
         "parameters":{
@@ -111,12 +111,12 @@
                     "title":"Region Annotation Strategy",
                     "description":"Type of regions being used",
                     "type":"string",
-                    "enum":["None",""]
+                    "enum":["None","GIMP TSI","GIMP CUSTOM","InForm Annotation"]
                 },
                 "draw_margin_width":{
                     "title":"Draw Margin Width (px)",
                     "description":"The width of tool used to draw the margin if a hand annotated file is included",
-                    "type":"string"
+                    "type":"integer"
                 }
             },
             "additionalProperties":false,
@@ -124,6 +124,6 @@
         }
     },
     "additionalProperties":false,
-    "required":["inform_exports","mutually_exclusive_phenotypes","binary_phenotypes","regions","meta"]
+    "required":["inform_exports","mutually_exclusive_phenotypes","binary_phenotypes","regions","parameters"]
 
 }

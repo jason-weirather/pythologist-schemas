@@ -32,9 +32,12 @@ def main(args):
    # Lets start with the panel
 
    #if args.panel_output: do_panel_output(args)
-   if args.project_output: do_project_folder_output(args)
-   if args.analysis_output: do_analysis_output(args)
-   if args.report_output: do_report_output(args)
+   if args.project_output: 
+      do_project_folder_output(args.project_output)
+   if args.analysis_output: 
+      do_analysis_output(args.analysis_output)
+   if args.report_output: 
+      do_report_output(args.report_output)
 
    return
 
@@ -89,14 +92,13 @@ def _fix_width(worksheet,min_width=20,padding=3):
       worksheet.column_dimensions[get_column_letter(i+1)].width = column_width
 
 
-def do_report_output(args):
+def do_report_output(output_path):
    _validator = get_validator(files('schema_data').joinpath('report.json'))
    _schema = _validator.schema
    wb = Workbook()
    default_names = wb.sheetnames
    wb.add_named_style(highlight)
 
-   _oname = args.report_output
 
    # Start with the Metadata. Write the header and the value names
 
@@ -116,10 +118,10 @@ def do_report_output(args):
    for _sheet_name in default_names:
       #print(_sheet_name)
       del wb[_sheet_name]
-   wb.save(filename = _oname)
+   wb.save(filename = output_path)
    return
 
-def do_analysis_output(args):
+def do_analysis_output(output_file):
    _validator1 = get_validator(files('schema_data.inputs').joinpath('panel.json'))
    _validator2 = get_validator(files('schema_data.inputs.platforms.InForm').joinpath('analysis.json'))
    _schema1 = _validator1.schema
@@ -132,7 +134,6 @@ def do_analysis_output(args):
    default_names = wb.sheetnames
    wb.add_named_style(highlight)
 
-   _oname = args.analysis_output
 
    # Start with the Metadata. Write the header and the value names
 
@@ -160,17 +161,14 @@ def do_analysis_output(args):
    _write_repeating(ws5,_schema2['properties']['regions'])
    _fix_width(ws5)
 
-
-
-
    # cleanup workbook deleting default sheet name
    for _sheet_name in default_names:
       #print(_sheet_name)
       del wb[_sheet_name]
-   wb.save(filename = _oname)
+   wb.save(filename = output_file)
    return
 
-def do_project_folder_output(args):
+def do_project_folder_output(output_file):
    # For now lets keep this with InForm only
    _validator = get_validator(files('schema_data.inputs.platforms.InForm').joinpath('project.json'))
    _schema = _validator.schema
@@ -178,8 +176,6 @@ def do_project_folder_output(args):
    wb = Workbook()
    default_names = wb.sheetnames
    wb.add_named_style(highlight)
-
-   _oname = args.project_output
 
    # Start with the Metadata. Write the header and the value names
 
@@ -197,7 +193,7 @@ def do_project_folder_output(args):
    for _sheet_name in default_names:
       #print(_sheet_name)
       del wb[_sheet_name]
-   wb.save(filename = _oname)
+   wb.save(filename = output_file)
 
 def do_panel_output(args):
    #import schema_data.inputs as schema_data_inputs

@@ -26,7 +26,7 @@ setup(
   keywords='bioinformatics',
   packages=['pythologist_schemas',
             'schema_data',
-            'schema_data.inputs'
+            'schema_data.inputs',
             'schema_data.inputs.platforms.InForm'
             ],
   install_requires = ['jsonschema','importlib_resources'],
