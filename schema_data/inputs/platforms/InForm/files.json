@@ -50,7 +50,7 @@
                     "additionalProperties":false
                 },
                 "score_data_txt":{
-                    "type":"string",
+                    "type":"object",
                     "description":"A file with one or two scores used in assigning binary phenotype thresholds.",
                     "properties":{
                         "file_path":{
@@ -91,7 +91,7 @@
         }
     },
     "properties":{
-        "sample_name"{
+        "sample_name":{
             "type":"string"
         },
         "exports":{
@@ -122,7 +122,7 @@
                 "additionalProperties":false,
                 "required":["export_name","images"]
             }
-        },
+        }
     },
     "additionalProperties":false,
     "required":["sample_name","exports"]
