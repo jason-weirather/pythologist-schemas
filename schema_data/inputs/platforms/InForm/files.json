@@ -1,0 +1,129 @@
+{
+    "$schema": "https://json-schema.org/schema#",
+    "type": "object",
+    "description":"Define a single sample in InForm.",
+    "definitions":{
+        "image_data":{
+            "type":"object",
+            "description":"These are the paths of the data elements created from InForm exports, although none are explicitly required here, what can be done downstream depends which of these are available.",
+            "properties":{
+                "component_data_tif":{
+                    "type":"object",
+                    "description":"A tif image with layers representative of channels measuring each stain.",
+                    "properties":{
+                        "file_path":{
+                            "type":"string"
+                        },
+                        "suffix":{
+                            "type":"string",
+                            "const":"component_data.tif"
+                        }
+                    },
+                    "additionalProperties":false
+                },
+                "binary_segs_maps_tif":{
+                    "type":"object",
+                    "description":"A tif image with layers such as an optional processed image area mask, a nuclear and membrane mask index integer coded, and region mask.",
+                    "properties":{
+                        "file_path":{
+                            "type":"string"
+                        },
+                        "suffix":{
+                            "type":"string",
+                            "const":"binary_seg_maps.tif"
+                        }
+                    },
+                    "additionalProperties":false
+                },
+                "cell_seg_data_txt":{
+                    "type":"object",
+                    "description":"A file with the cell-phenotypes assigned per cell index, and mean intensity measures sufficient for infering any binary phenotypes.",
+                    "properties":{
+                        "file_path":{
+                            "type":"string"
+                        },
+                        "suffix":{
+                            "type":"string",
+                            "const":"cell_seg_data.txt"
+                        }
+                    },
+                    "additionalProperties":false
+                },
+                "score_data_txt":{
+                    "type":"string",
+                    "description":"A file with one or two scores used in assigning binary phenotype thresholds.",
+                    "properties":{
+                        "file_path":{
+                            "type":"string"
+                        },
+                        "suffix":{
+                            "type":"string",
+                            "const":"score_data.txt"
+                        }
+                    },
+                    "additionalProperties":false
+                }
+            },
+            "additionalProperties":false,
+            "required":["score_data_txt","binary_segs_maps_tif","component_data_tif","cell_seg_data_txt"]
+        },
+        "image_annotations":{
+            "type":"array",
+            "items":{
+                "type":"object",
+                "title":"GIMP tif",
+                "description":"Path to GIMP annotation files",
+                "properties":{
+                    "file_path":{
+                        "type":"string"
+                    },
+                    "suffix":{
+                        "type":"string",
+                        "const":".tif"
+                    },
+                    "mask_label":{
+                        "type":"string",
+                        "description":"A label for this mask"
+                    }
+                },
+                "additionalProperties":false
+            }
+        }
+    },
+    "properties":{
+        "sample_name"{
+            "type":"string"
+        },
+        "exports":{
+            "type":"array",
+            "items":{
+                "type":"object",
+                "description":"A single export",
+                "properties":{
+                    "export_name":{
+                        "type":"string"
+                    },
+                    "images":{
+                        "type":"array",
+                        "items":{
+                            "type":"object",
+                            "properties":{
+                                "image_name":{
+                                    "type":"string"
+                                },
+                                "image_data":{"$ref":"#/definitions/image_data"},
+                                "image_annotations":{"$ref":"#/definitions/image_annotations"}
+                            },
+                            "additionalProperties":false,
+                            "required":["image_name","image_data"]
+                        }
+                    }
+                },
+                "additionalProperties":false,
+                "required":["export_name","images"]
+            }
+        },
+    },
+    "additionalProperties":false,
+    "required":["sample_name","exports"]
+}

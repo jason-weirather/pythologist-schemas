@@ -17,9 +17,8 @@
                     },
                     "primary_phenotyping":{
                         "title":"Primary Phenotyping",
-                        "description":"If yes, this is the InForm export that will be the basis for the mutually exclusive phenotypes. Only one of the exports can be a Yes.",
-                        "type":"string",
-                        "enum":["Yes","No"]
+                        "description":"If TRUE, this is the InForm export that will be the basis for the mutually exclusive phenotypes. Only one of the exports can be a TRUE.",
+                        "type":["boolean","null"]
                     }
                 },
                 "additionalProperties":false,
@@ -45,8 +44,8 @@
                     },
                     "convert_to_binary":{
                         "title":"Convert to Binary Phenotype",
-                        "description":"If yes, this mutually exclusive phenotype will be converted to a binary phenotype.",
-                        "type":"string"
+                        "description":"If TRUE, this mutually exclusive phenotype will be converted to a binary phenotype.",
+                        "type":["boolean","null"]
                     }
                 },
                 "additionalProperties":false,

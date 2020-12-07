@@ -66,7 +66,11 @@ def _write_parameters(worksheet,fields):
 
    for _i, _property in enumerate(fields['properties']):
       worksheet.cell(row=_i+2,column=1).style = boldened
-      worksheet.cell(row=_i+2,column=1).value=_property if 'title' not in fields['properties'][_property] else fields['properties'][_property]['title']
+      worksheet.cell(row=_i+2,column=1).value=  fields['properties'][_property]['title']
+      if 'default' in fields['properties'][_property]:
+         worksheet.cell(row=_i+2,column=2).value = fields['properties'][_property]['default']
+         
+         
 
 def _write_repeating(worksheet,fields):
    "Write the repeating data fields to the worksheet"
@@ -84,10 +88,10 @@ def _fix_width(worksheet,min_width=20,padding=3):
       for i, cell in enumerate(row):
          if cell.value is None: continue
          if len(column_widths) > i:
-            if len(cell.value) > column_widths[i]:
-                column_widths[i] = min_width if len(cell.value)+padding < min_width else len(cell.value)+padding
+            if len(str(cell.value)) > column_widths[i]:
+                column_widths[i] = min_width if len(str(cell.value))+padding < min_width else len(str(cell.value))+padding
          else:
-            column_widths += [min_width if len(cell.value)+padding < min_width else len(cell.value)+padding]
+            column_widths += [min_width if len(str(cell.value))+padding < min_width else len(str(cell.value))+padding]
    for i, column_width in enumerate(column_widths):
       worksheet.column_dimensions[get_column_letter(i+1)].width = column_width
 

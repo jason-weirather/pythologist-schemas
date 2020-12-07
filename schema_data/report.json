@@ -20,7 +20,7 @@
             }
         },
         "population_densities":{
-            "title":"Population Density",
+            "title":"Population Densities",
             "type":"array",
             "description":"The set of rules defining population densities to extract.",
             "items":{
@@ -38,7 +38,7 @@
                     },
                     "binary_phenotypes":{
                         "title":"Binary Phenotypes",
-                        "type":"string",
+                        "type":["string","null"],
                         "description":"Comma separated list of phenotype names with a trailing positive or negative sign to define the filter."
                     }
                 },
@@ -65,7 +65,7 @@
                     },
                     "numerator_binary_phenotypes":{
                         "title":"Numerator Binary Phenotypes",
-                        "type":"string",
+                        "type":["string","null"],
                         "description":"Comma separated list of phenotype names in the numerator with a trailing positive or negative sign to define the filter."
                     },
                     "denominator_mutually_exclusive_phenotypes":{
@@ -75,7 +75,7 @@
                     },
                     "denominator_binary_phenotypes":{
                         "title":"Denominator Binary Phenotypes",
-                        "type":"string",
+                        "type":["string","null"],
                         "description":"Comma separated list of phenotype names in the numerator with a trailing positive or negative sign to define the filter."
                     }
                 },

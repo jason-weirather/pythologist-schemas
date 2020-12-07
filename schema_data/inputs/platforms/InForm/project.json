@@ -32,6 +32,12 @@
                     "title":"Project Path",
                     "type":"string",
                     "description":"Location of the folder."
+                },
+                "microns_per_pixel":{
+                    "title":"Microns Per Pixel",
+                    "type":"number",
+                    "default":0.496,
+                    "description":"Location of the folder."
                 }
             },
             "additionalProperties":false

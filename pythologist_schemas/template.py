@@ -6,7 +6,7 @@ def excel_to_json(excel_template_path,
                   json_schema_path,
                   sheet_names,
                   parameter_sheet="Parameters",
-                  do_parameters=True,
+                  #do_parameters=True,
                   ignore_extra_parameters=True):
     """
     Read the analysis data from a filled-in template file
@@ -109,8 +109,11 @@ def _read_repeating(worksheet_title,workbook,schema):
         if column_name not in _trans:
             raise ValueError('Column Name "'+str(column_name)+'" is not defined among the titles in the json-schema for data table "'+str(_keyname)+'""')
     
-    
-    _data = [dict(zip([_trans[z] for z in _header],[y.value for y in x])) for x in ws][1:]
+    _data = {}
+    if len([x for x in ws]) <= 1: 
+        _data = []
+    else:
+        _data = [dict(zip([_trans[z] for z in _header],[y.value for y in x])) for x in ws][1:]
 
     return _keyname, _data, True, []
 
