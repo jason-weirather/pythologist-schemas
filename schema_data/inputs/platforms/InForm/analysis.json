@@ -113,9 +113,19 @@
                     "enum":["None","GIMP TSI","GIMP CUSTOM","InForm Annotation"]
                 },
                 "draw_margin_width":{
-                    "title":"Draw Margin Width (px)",
-                    "description":"The width of tool used to draw the margin if a hand annotated file is included",
+                    "title":"Draw Margin Width (pixels)",
+                    "description":"The width of tool used to draw the margin if a hand annotated file is included. Usually 10 pixels",
                     "type":"integer"
+                },
+                "region_annotation_custom_label":{
+                    "title":"Region Annotation Custom Label",
+                    "type":["string","null"],
+                    "description":"If GIMP CUSTOM is the region annotation strategy, this is the name of the custom label <CUSTOM>.tif to find and label the region annotation mask"
+                },
+                "unannotated_region_label":{
+                    "title":"Unannotated Region Label",
+                    "type":["string","null"],
+                    "description":"If GIMP CUSTOM is the region annotation strategy, this is the name of the label for any region NOT covered by the <CUSTOM>.tif mask"
                 }
             },
             "additionalProperties":false,

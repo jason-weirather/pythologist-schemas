@@ -3,90 +3,109 @@
     "type": "object",
     "description":"Define a single sample in InForm.",
     "definitions":{
+        "file":{
+            "type":"object",
+            "properties":{
+                "file_path":{
+                    "type":"string"
+                },
+                "sha256_hash":{
+                    "type":"string"
+                },
+                "last_modified_timestamp":{
+                    "type":"string"
+                }
+            }
+        },
         "image_data":{
             "type":"object",
             "description":"These are the paths of the data elements created from InForm exports, although none are explicitly required here, what can be done downstream depends which of these are available.",
             "properties":{
                 "component_data_tif":{
-                    "type":"object",
-                    "description":"A tif image with layers representative of channels measuring each stain.",
-                    "properties":{
-                        "file_path":{
-                            "type":"string"
-                        },
-                        "suffix":{
-                            "type":"string",
-                            "const":"component_data.tif"
+                    "allOf":[
+                        {"$ref":"#/definitions/file"},
+                        {
+                            "type":"object",
+                            "description":"A tif image with layers representative of channels measuring each stain.",
+                            "properties":{
+                                "suffix":{
+                                    "type":"string",
+                                    "const":"component_data.tif"
+                                }
+                            }
                         }
-                    },
-                    "additionalProperties":false
+                    ]
                 },
                 "binary_segs_maps_tif":{
-                    "type":"object",
-                    "description":"A tif image with layers such as an optional processed image area mask, a nuclear and membrane mask index integer coded, and region mask.",
-                    "properties":{
-                        "file_path":{
-                            "type":"string"
-                        },
-                        "suffix":{
-                            "type":"string",
-                            "const":"binary_seg_maps.tif"
+                    "allOf":[
+                        {"$ref":"#/definitions/file"},
+                        {
+                            "type":"object",
+                            "description":"A tif image with layers such as an optional processed image area mask, a nuclear and membrane mask index integer coded, and region mask.",
+                            "properties":{
+                                "suffix":{
+                                    "type":"string",
+                                    "const":"binary_seg_maps.tif"
+                                }
+                            }
                         }
-                    },
-                    "additionalProperties":false
+                    ]
                 },
                 "cell_seg_data_txt":{
-                    "type":"object",
-                    "description":"A file with the cell-phenotypes assigned per cell index, and mean intensity measures sufficient for infering any binary phenotypes.",
-                    "properties":{
-                        "file_path":{
-                            "type":"string"
-                        },
-                        "suffix":{
-                            "type":"string",
-                            "const":"cell_seg_data.txt"
+                    "allOf":[
+                        {"$ref":"#/definitions/file"},
+                        {
+                            "type":"object",
+                            "description":"A file with the cell-phenotypes assigned per cell index, and mean intensity measures sufficient for infering any binary phenotypes.",
+                            "properties":{
+                                "suffix":{
+                                    "type":"string",
+                                    "const":"cell_seg_data.txt"
+                                }
+                            }
                         }
-                    },
-                    "additionalProperties":false
+                    ]
                 },
                 "score_data_txt":{
-                    "type":"object",
-                    "description":"A file with one or two scores used in assigning binary phenotype thresholds.",
-                    "properties":{
-                        "file_path":{
-                            "type":"string"
-                        },
-                        "suffix":{
-                            "type":"string",
-                            "const":"score_data.txt"
+                    "allOf":[
+                        {"$ref":"#/definitions/file"},
+                        {
+                            "type":"object",
+                            "description":"A file with one or two scores used in assigning binary phenotype thresholds.",
+                            "properties":{
+                                "suffix":{
+                                    "type":"string",
+                                    "const":"score_data.txt"
+                                }
+                            }
                         }
-                    },
-                    "additionalProperties":false
+                    ]
                 }
             },
             "additionalProperties":false,
-            "required":["score_data_txt","binary_segs_maps_tif","component_data_tif","cell_seg_data_txt"]
+            "required":["binary_segs_maps_tif","component_data_tif","cell_seg_data_txt"]
         },
         "image_annotations":{
             "type":"array",
             "items":{
-                "type":"object",
-                "title":"GIMP tif",
-                "description":"Path to GIMP annotation files",
-                "properties":{
-                    "file_path":{
-                        "type":"string"
-                    },
-                    "suffix":{
-                        "type":"string",
-                        "const":".tif"
-                    },
-                    "mask_label":{
-                        "type":"string",
-                        "description":"A label for this mask"
+                "allOf":[
+                    {"$ref":"#/definitions/file"},
+                    {
+                        "type":"object",
+                        "title":"GIMP tif",
+                        "description":"Path to GIMP annotation files",
+                        "properties":{
+                            "suffix":{
+                                "type":"string",
+                                "const":".tif"
+                            },
+                            "mask_label":{
+                                "type":"string",
+                                "description":"A label for this mask"
+                            }
+                        }
                     }
-                },
-                "additionalProperties":false
+                ]
             }
         }
     },
