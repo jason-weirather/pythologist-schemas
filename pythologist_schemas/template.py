@@ -33,7 +33,7 @@ def excel_to_json(excel_template_path,
     total_success = True
     total_errors = []
     for sheet in sheet_names:
-        print(sheet)
+        #print(sheet)
         # Lets do the Repeating fields next
         _repeating_key, _data, repeat_success, repeat_errors = _read_repeating(sheet,wb,_validator.schema)
         total_success = total_success and repeat_success

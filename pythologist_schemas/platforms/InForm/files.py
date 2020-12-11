@@ -69,15 +69,19 @@ def injest_project(project_json,analysis_json):
         raise ValueError('Folder(s) are present in the project folder that are not listed in the sample manifest '+str(unwelcome))
 
     samples = []
+    injest_success = True
+    injest_errors = []
     for sample_path, sample_name in [(os.path.join(project_directory,x),x) for x in folder_names]:
-        print(sample_name)
-        sample_json = injest_sample(sample_name,sample_path,project_json,analysis_json)
+        #print(sample_name)
+        sample_json, injest_success0, injest_errors0 = injest_sample(sample_name,project_json,analysis_json)
+        injest_errors += injest_errors0
+        injest_success  = injest_success0 and injest_success
         samples.append(sample_json)
-    return samples
+    return samples, injest_success, injest_errors
 
 
 
-def injest_sample(sample_name,sample_path,project_json,analysis_json):
+def injest_sample(sample_name,project_json,analysis_json):
     """
     Read a path pointing to an InForm sample folder
 
@@ -87,14 +91,25 @@ def injest_sample(sample_name,sample_path,project_json,analysis_json):
     Returns:
         CellDataFrame
     """
+
+
     
     # Confirm the inputs are valid
     project_schema_validator.validate(project_json)
     analysis_schema_validator.validate(analysis_json)
+    # a. Make sure the project directory exists
+    project_directory = project_json['parameters']['project_path']
+    if not os.path.exists(project_directory):
+        raise ValueError('Project directory "'+str(project_directory)+'" does not exist.')
+    if not os.path.isdir(project_directory):
+        raise ValueError('Project directory path "'+str(project_directory)+'" does not a directory.')
+    sample_path = os.path.join(project_directory,sample_name)
     if not os.path.exists(sample_path):
         raise ValueError(str(sample_path)+' sample path does not exist')
     if sample_name not in [x['sample'] for x in project_json['samples']]:
         raise ValueError(str(sample_name)+ ' not in sample allow list from project definition')
+
+
 
     # d. Make sure all export folders and only those export folders are present in each sample folder
 
@@ -133,7 +148,7 @@ def injest_sample(sample_name,sample_path,project_json,analysis_json):
         sample_files['exports'].append(export)
 
     files_schema_validator.validate(instance=sample_files)
-    return sample_files
+    return sample_files, True, []
 
 def _inspect_export_folder(export_path,sample_name,analysis_json):
     #print(export_path)
@@ -188,7 +203,7 @@ def _do_export_images(export_path,sample_name,analysis_json):
             image_obj[image_name][image_file_name] = _dict[image_name]
     image_output = {}
     for image_name in sorted(list(image_obj.keys())):
-        print(image_name)
+        #print(image_name)
         _img = {
             'image_name':image_name,
             'image_data':{},
@@ -205,7 +220,7 @@ def _do_export_images(export_path,sample_name,analysis_json):
     annotation_strategy = analysis_json['parameters']['region_annotation_strategy']
     for image_name in sorted(list(image_obj.keys())):
         if annotation_strategy == 'GIMP TSI':
-            print(image_output[image_name])
+            #print(image_output[image_name])
             image_output[image_name]['image_annotations'] = _do_region_annotation_GIMP_TSI(image_name,export_path,image_files)
         elif annotation_strategy == 'GIMP CUSTOM':
             image_output[image_name]['image_annotations'] = _do_region_annotation_GIMP_CUSTOM(image_name,

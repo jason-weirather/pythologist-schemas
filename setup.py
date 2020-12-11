@@ -32,7 +32,7 @@ setup(
   install_requires = ['jsonschema','importlib_resources'],
   include_package_data = True,
   entry_points = {
-    'console_scripts':['pythologist-validator=pythologist_schemas.cli.validator:cli',
-                       'pythologist-templates=pythologist_schemas.cli.templates:cli']
+    'console_scripts':['pythologist-validator=pythologist_schemas.cli.validator_tool:cli',
+                       'pythologist-templates=pythologist_schemas.cli.template_tool:cli']
   }
 )
