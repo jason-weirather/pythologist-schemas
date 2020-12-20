@@ -1,0 +1,91 @@
+{
+    "$schema": "https://json-schema.org/schema#",
+    "type": "object",
+    "description":"This is a processed version of report_definition where it has been fully parsed.",
+    "definitions":{
+        "binary_phenotypes":{
+            "title":"Binary Phenotypes",
+            "type":"array",
+            "description":"Binary phenotypes and the corresponding filter to apply.",
+            "items":{
+                "type":"object",
+                "description":"A binary phenotype defined by a marker and a call",
+                "properties":{
+                    "binary_phenotype":{
+                        "type":"string"
+                    },
+                    "filter_direction":{
+                        "type":"string",
+                        "enum":["+","-"]
+                    }
+                }
+            }
+        },
+        "mutually_exclusive_phenotypes":{
+            "type":"array",
+            "description":"A mutually exclusive phenotype name",
+            "items":{
+                "type":"string"
+            }
+        }
+    },
+    "properties":{
+        "parameters":{
+            "title":"Parameters",
+            "type":"object",
+            "properties":{
+                "report_name":{
+                    "title":"Report Name",
+                    "type":"string",
+                    "description":"Name to identify this report setup"
+                },
+                "report_version":{
+                    "title":"Report Version",
+                    "type":"string",
+                    "description":"Version of the report"
+                }
+            }
+        },
+        "population_densities":{
+            "title":"Population Densities",
+            "type":"array",
+            "description":"The set of rules defining population densities to extract.",
+            "items":{
+                "type":"object",
+                "properties":{
+                    "population_name":{
+                        "title":"Population Name",
+                        "type":"string",
+                        "description":"Label to give this cell population in the report."
+                    },
+                    "mutually_exclusive_phenotypes":{"$ref":"#/definitions/mutually_exclusive_phenotypes"},
+                    "binary_phenotypes":{"$ref":"#/definitions/binary_phenotypes"},
+                "additionalProperties":false,
+                "required":["population_name","mutually_exclusive_phenotypes"]
+            }
+        },
+        "population_percentages":{
+            "title":"Population Percentages",
+            "type":"array",
+            "description":"The set of rules defining population percentages to extract.",
+            "items":{
+                "type":"object",
+                "properties":{
+                    "population_name":{
+                        "title":"Population Name",
+                        "type":"string",
+                        "description":"Label to give this cell population in the report."
+                    },
+                    "numerator_mutually_exclusive_phenotypes":{"$ref":"#/definitions/mutually_exclusive_phenotypes"},
+                    "numerator_binary_phenotypes":{"$ref":"#/definitions/binary_phenotypes"},
+                    "denominator_mutually_exclusive_phenotypes":{"$ref":"#/definitions/mutually_exclusive_phenotypes"},
+                    "denominator_binary_phenotypes":{"$ref":"#/definitions/binary_phenotypes"}
+                },
+                "additionalProperties":false,
+                "required":["population_name","numerator_mutually_exclusive_phenotypes"]
+            }
+        }
+    },      
+    "additionalProperties":false,
+    "required":["parameters"]
+}

@@ -52,17 +52,11 @@ def main(args):
    ## 1b. Read in the 'not absolutely necessary for end-to-end run' report
 
    if args.report_excel:
-      _fname = files('schema_data').joinpath('report_template.json')
+      _fname = files('schema_data').joinpath('inputs/report_definition.json')
       report_json, report_success1, report_errors1  = excel_to_json(args.report_excel, \
                                                                     _fname,
                                                                     ['Population Percentages','Population Densities'], \
                                                                     ignore_extra_parameters=False)
-      report_success2 = True
-      if report_success1:
-        # Check the report to ensure that it can be used.
-        report_success2 = _check_report_assumptions(report_json,)
-
-      total_success = total_success and report_success1 and report_success2
 
    # 2. No we can ensure the files are properly structured
 
