@@ -30,8 +30,8 @@
                 },
                 "project_path":{
                     "title":"Project Path",
-                    "type":"string",
-                    "description":"Location of the folder."
+                    "type":["null","string"],
+                    "description":"Location of the folder. By default assume this folder is a standard format project."
                 },
                 "microns_per_pixel":{
                     "title":"Microns Per Pixel",

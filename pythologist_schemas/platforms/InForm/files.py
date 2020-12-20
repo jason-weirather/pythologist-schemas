@@ -52,11 +52,16 @@ def injest_project(project_json,analysis_json):
     if not os.path.isdir(project_directory):
         raise ValueError('Project directory path "'+str(project_directory)+'" does not a directory.')
 
+    # c. Look for the SAMPLES folder in the project directory
+    project_samples_directory = os.path.join(project_directory,'SAMPLES')
+    if not os.path.exists(project_samples_directory) and not os.path.isdir(project_samples_directory):
+        raise ValueError('Project samples path '+str(project_directory)+' does not have a SAMPLES directory')
+
     # b. Make sure the project directories visible files are only folders
 
-    folder_names = [x for x in os.listdir(project_directory) if x[0]!='.'] 
+    folder_names = [x for x in os.listdir(project_samples_directory) if x[0]!='.'] 
     for folder_name in folder_names:
-        if not os.path.isdir(os.path.join(project_directory,folder_name)):
+        if not os.path.isdir(os.path.join(project_samples_directory,folder_name)):
             raise ValueError('File present in the project directory that is not a folder '+str(folder_name))
 
     # c. Make sure the visible folders are only exactly named as those among the sample manifest
@@ -103,7 +108,7 @@ def injest_sample(sample_name,project_json,analysis_json):
         raise ValueError('Project directory "'+str(project_directory)+'" does not exist.')
     if not os.path.isdir(project_directory):
         raise ValueError('Project directory path "'+str(project_directory)+'" does not a directory.')
-    sample_path = os.path.join(project_directory,sample_name)
+    sample_path = os.path.join(project_directory,'SAMPLES',sample_name)
     if not os.path.exists(sample_path):
         raise ValueError(str(sample_path)+' sample path does not exist')
     if sample_name not in [x['sample'] for x in project_json['samples']]:
@@ -115,10 +120,10 @@ def injest_sample(sample_name,project_json,analysis_json):
 
     expected_export_files = [x['export_name'] for x in analysis_json['inform_exports']]
 
-    observed_files = [x for x in os.listdir(sample_path) if x[0]!='.']
+    observed_files = [x for x in os.listdir(os.path.join(sample_path,'INFORM_ANALYSIS')) if x[0]!='.']
     for observed_file in observed_files:
-        if not os.path.isdir(os.path.join(sample_path,observed_file)):
-            raise ValueError('File is present in the Sample folder that is not an InForm Export Folder '+str(observed_file))
+        if not os.path.isdir(os.path.join(sample_path,'INFORM_ANALYSIS',observed_file)):
+            raise ValueError('File is present in the Sample folder that is not an InForm Export Folder '+str(observed_file)+' is not among '+str(expected_export_files))
     missing = sorted(list(set(expected_export_files)-set(observed_files)))
     if len(missing) > 0:
         raise ValueError('InForm Export Folder(s) are missing from the sample path "'+sample_path+'" that are expected '+str(missing))
@@ -133,7 +138,7 @@ def injest_sample(sample_name,project_json,analysis_json):
             'exports':[
             ]
     }
-    for export_path, export_name in [(os.path.join(sample_path,x),x) for x in expected_export_files]:
+    for export_path, export_name in [(os.path.join(sample_path,'INFORM_ANALYSIS',x),x) for x in expected_export_files]:
         # Inspect the export_path to make sure there isnt something funky inside of it
     
         # e. Make sure there aren't more folders burried deeper in these .. only files
@@ -143,7 +148,7 @@ def injest_sample(sample_name,project_json,analysis_json):
 
         export = {
             'export_name':export_name,
-            'images':_do_export_images(export_path,sample_name,analysis_json)
+            'images':_do_export_images(export_path,sample_name,analysis_json,sample_path)
         }
         sample_files['exports'].append(export)
 
@@ -180,7 +185,7 @@ def _sha256(fname):
     return hash_sha256.hexdigest()
 
 # Now for each sample read it into the files json-schema object
-def _do_export_images(export_path,sample_name,analysis_json):
+def _do_export_images(export_path,sample_name,analysis_json,sample_path):
 
 
     # Some things we need to check 
@@ -219,25 +224,28 @@ def _do_export_images(export_path,sample_name,analysis_json):
     # check against annotation_strategy_requirements
     annotation_strategy = analysis_json['parameters']['region_annotation_strategy']
     for image_name in sorted(list(image_obj.keys())):
-        if annotation_strategy == 'GIMP TSI':
+        if annotation_strategy == 'GIMP_TSI':
             #print(image_output[image_name])
-            image_output[image_name]['image_annotations'] = _do_region_annotation_GIMP_TSI(image_name,export_path,image_files)
-        elif annotation_strategy == 'GIMP CUSTOM':
+            image_output[image_name]['image_annotations'] = _do_region_annotation_GIMP_TSI(image_name,sample_path,image_files)
+        elif annotation_strategy == 'GIMP_CUSTOM':
             image_output[image_name]['image_annotations'] = _do_region_annotation_GIMP_CUSTOM(image_name,
-            	                                                                              export_path,image_files,
+            	                                                                              sample_path,image_files,
             	                                                                              analysis_json['parameters']['region_annotation_custom_label']
             	                                                                              )
-        elif annotation_strategy == 'InForm Annotation':
+        elif annotation_strategy == 'INFORM_ANALYSIS':
             continue
-        elif annotation_strategy == 'None':
+        elif annotation_strategy == 'NO_ANNOTATION':
             continue
         else:
             raise ValueError("Unsupported Region Annotation Strategy. You shouldn't see this because of enum check")
 
     return list(image_output.values())
 
-def _do_region_annotation_GIMP_TSI(image_name,export_path,image_files):
-    prospective1 = os.path.join(export_path,image_name+'_Tumor.tif')
+def _do_region_annotation_GIMP_TSI(image_name,sample_path,image_files):
+    annotation_folder = os.path.join(sample_path,'ANNOTATIONS')
+    if not os.path.exists(annotation_folder) or not os.path.isdir(annotation_folder):
+        raise ValueError("Unable to locate ANNOTATIONS folder in the sample folder "+str(sample_path))
+    prospective1 = os.path.join(annotation_folder,image_name+'_Tumor.tif')
     outputs = []
     if not os.path.exists(prospective1):
         raise ValueError("Required file is not present. "+str(prospective1))
@@ -246,15 +254,18 @@ def _do_region_annotation_GIMP_TSI(image_name,export_path,image_files):
     outputs += [d1]
 
     # This file is not required
-    prospective2 = os.path.join(export_path,image_name+'_Invasive_Margin.tif')
+    prospective2 = os.path.join(annotation_folder,image_name+'_Invasive_Margin.tif')
     if os.path.exists(prospective2):
         d2 =  _generate_file_dictionary(prospective2)
         d2['mask_label'] = 'TSI Line'
     outputs += [d2]
     return outputs
 
-def _do_region_annotation_GIMP_CUSTOM(image_name,export_path,image_files,custom_label):
-    prospective1 = os.path.join(export_path,image_name+'_'+str(custom_label)+'.tif')
+def _do_region_annotation_GIMP_CUSTOM(image_name,sample_path,image_files,custom_label):
+    annotation_folder = os.path.join(sample_path,'ANNOTATIONS')
+    if not os.path.exists(annotation_folder) or not os.path.isdir(annotation_folder):
+        raise ValueError("Unable to locate ANNOTATIONS folder in the sample folder "+str(sample_path))
+    prospective1 = os.path.join(annotation_folder,image_name+'_'+str(custom_label)+'.tif')
     outputs = []
     if not os.path.exists(prospective1):
         raise ValueError("Required custom annotation file is not present. "+str(prospective1))

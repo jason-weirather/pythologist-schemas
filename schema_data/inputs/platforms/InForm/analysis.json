@@ -110,7 +110,7 @@
                     "title":"Region Annotation Strategy",
                     "description":"Type of regions being used",
                     "type":"string",
-                    "enum":["None","GIMP TSI","GIMP CUSTOM","InForm Annotation"]
+                    "enum":["NO_ANNOTATION","GIM_TSI","GIMP_CUSTOM","INFORM_ANALYSIS"]
                 },
                 "draw_margin_width":{
                     "title":"Draw Margin Width (pixels)",
