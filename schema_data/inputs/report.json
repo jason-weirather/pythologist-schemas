@@ -11,14 +11,16 @@
                 "type":"object",
                 "description":"A binary phenotype defined by a marker and a call",
                 "properties":{
-                    "binary_phenotype":{
+                    "target_name":{
                         "type":"string"
                     },
                     "filter_direction":{
                         "type":"string",
                         "enum":["+","-"]
                     }
-                }
+                },
+                "additionalProperties":false,
+                "required":["target_name","filter_direction"]
             }
         },
         "mutually_exclusive_phenotypes":{
@@ -26,7 +28,9 @@
             "description":"A mutually exclusive phenotype name",
             "items":{
                 "type":"string"
-            }
+            },
+            "minItems":1,
+            "uniqueItems":true
         }
     },
     "properties":{
@@ -59,7 +63,8 @@
                         "description":"Label to give this cell population in the report."
                     },
                     "mutually_exclusive_phenotypes":{"$ref":"#/definitions/mutually_exclusive_phenotypes"},
-                    "binary_phenotypes":{"$ref":"#/definitions/binary_phenotypes"},
+                    "binary_phenotypes":{"$ref":"#/definitions/binary_phenotypes"}
+                },
                 "additionalProperties":false,
                 "required":["population_name","mutually_exclusive_phenotypes"]
             }

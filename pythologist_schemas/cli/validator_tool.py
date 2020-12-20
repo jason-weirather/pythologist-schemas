@@ -7,6 +7,7 @@ import argparse, os, json, sys, hashlib
 from importlib_resources import files
 from pythologist_schemas.template import excel_to_json
 from pythologist_schemas.platforms.InForm.files import injest_project, injest_sample
+from pythologist_schemas.report import convert_report_definition_to_report
 from pythologist_reader.formats.inform.custom import CellFrameInFormLineArea, CellFrameInFormCustomMask
 from pythologist_reader.formats.inform.frame import CellFrameInForm
 from pythologist_image_utilities import hash_tiff_contents
@@ -47,17 +48,29 @@ def main(args):
    total_success = total_success and project_success
 
    if project_json['parameters']['project_path'] is None:
-     project_json['parameters']['project_path'], _tmp = os.path.split(args.project_excel)
+      project_json['parameters']['project_path'], _tmp = os.path.split(args.project_excel)
+
+
+
+   total_mutually_exclusive_phenotypes, total_binary_phenotype_target_names = _allowed_phenotypes(analysis_json)
 
    ## 1b. Read in the 'not absolutely necessary for end-to-end run' report
 
    if args.report_excel:
-      _fname = files('schema_data').joinpath('inputs/report_definition.json')
-      report_json, report_success1, report_errors1  = excel_to_json(args.report_excel, \
+      _fname = files('schema_data.inputs').joinpath('report_definition.json')
+      report_definition_json, report_definition_success, report_definition_errors  = excel_to_json(args.report_excel, \
                                                                     _fname,
                                                                     ['Population Percentages','Population Densities'], \
                                                                     ignore_extra_parameters=False)
+      total_success = total_success and report_definition_success
 
+      report_json = convert_report_definition_to_report(report_definition_json)
+
+      report_compatibility_success, report_compatibility_errors = _report_compatibility(report_json,
+                                                                          total_mutually_exclusive_phenotypes,
+                                                                          total_binary_phenotype_target_names)
+
+      total_success = total_success and report_compatibility_success
    # 2. No we can ensure the files are properly structured
 
    if args.sample_name: 
@@ -77,6 +90,40 @@ def main(args):
 
    return
 
+def _allowed_phenotypes(analysis_json):
+   # Extract the mutually exclusive phenotypes and binary phenotype target names
+   _exports = [x['export_name'] for x in analysis_json['inform_exports'] if x['primary_phenotyping']]
+   if len(_exports) == 0: raise ValueError("need at least one primary phenotyping")
+   if len(_exports) > 1: raise ValueError("can only have at most one primary phenotyping")
+   primary_export_name = _exports[0]
+
+   # now get the phenotypes we expect on that export
+   total_mutually_exclusive_phenotypes = [x['phenotype_name'] for x in analysis_json['mutually_exclusive_phenotypes'] if x['export_name']==primary_export_name]
+   if len(total_mutually_exclusive_phenotypes) == 0: raise ValueError("Expecting phenotypes to be defined")
+
+   # now get the binary phenotypes that we expect from any export
+   total_binary_phenotype_target_names = [x['target_name'] for x in analysis_json['binary_phenotypes']]+\
+                                         [x['phenotype_name'] for x in analysis_json['mutually_exclusive_phenotypes'] if x['convert_to_binary']]
+   return total_mutually_exclusive_phenotypes, total_binary_phenotype_target_names
+
+def _report_compatibility(report_json,total_mutually_exclusive_phenotypes,total_binary_phenotype_target_names):
+    # start with the population densities
+    for i,measure in enumerate(report_json['population_densities']):
+        _unknown = set(measure['mutually_exclusive_phenotypes'])-set(total_mutually_exclusive_phenotypes)
+        if len(_unknown) > 0: raise ValueError("Density report contains a mutually exclusive phenotype(s) thats not accounted for "+str(_unknown))
+        _unknown = set([x['target_name'] for x in measure['binary_phenotypes']])-set(total_binary_phenotype_target_names)
+        if len(_unknown) > 0: raise ValueError("Density report contains a binary phenotype(s) thats not accounted for "+str(_unknown))
+    for i,measure in enumerate(report_json['population_percentages']):
+        _unknown = set(measure['numerator_mutually_exclusive_phenotypes'])-set(total_mutually_exclusive_phenotypes)
+        if len(_unknown) > 0: raise ValueError("Percentage report contains a numerator mutually exclusive phenotype(s) thats not accounted for "+str(_unknown))
+        _unknown = set([x['target_name'] for x in measure['numerator_binary_phenotypes']])-set(total_binary_phenotype_target_names)
+        if len(_unknown) > 0: raise ValueError("Percentage report contains a numerator binary phenotype(s) thats not accounted for "+str(_unknown))
+        _unknown = set(measure['denominator_mutually_exclusive_phenotypes'])-set(total_mutually_exclusive_phenotypes)
+        if len(_unknown) > 0: raise ValueError("Percentage report contains a denominator mutually exclusive phenotype(s) thats not accounted for "+str(_unknown))
+        _unknown = set([x['target_name'] for x in measure['denominator_binary_phenotypes']])-set(total_binary_phenotype_target_names)
+        if len(_unknown) > 0: raise ValueError("Percentage report contains a denominator phenotype(s) thats not accounted for "+str(_unknown))
+
+    return True, []
 def _lightly_validate_sample(sample_file,analysis_json,project_json,panel_json):
 
    sample_name = sample_file['sample_name']
