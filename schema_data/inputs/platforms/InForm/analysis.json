@@ -110,12 +110,12 @@
                     "title":"Region Annotation Strategy",
                     "description":"Type of regions being used",
                     "type":"string",
-                    "enum":["NO_ANNOTATION","GIM_TSI","GIMP_CUSTOM","INFORM_ANALYSIS"]
+                    "enum":["NO_ANNOTATION","GIMP_TSI","GIMP_CUSTOM","INFORM_ANALYSIS"]
                 },
                 "draw_margin_width":{
                     "title":"Draw Margin Width (pixels)",
                     "description":"The width of tool used to draw the margin if a hand annotated file is included. Usually 10 pixels",
-                    "type":"integer"
+                    "type":["integer","null"]
                 },
                 "region_annotation_custom_label":{
                     "title":"Region Annotation Custom Label",

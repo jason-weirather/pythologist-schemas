@@ -30,7 +30,7 @@ analysis_schema_validator = get_validator(files('schema_data.inputs.platforms.In
 files_schema_validator = get_validator(files('schema_data.inputs.platforms.InForm').joinpath('files.json'))
 
 
-def injest_project(project_json,analysis_json):
+def injest_project(project_json,analysis_json,project_directory):
     """
     Read a path pointing to multiple InForm sample folders
 
@@ -46,7 +46,6 @@ def injest_project(project_json,analysis_json):
     analysis_schema_validator.validate(analysis_json)
 
     # a. Make sure the project directory exists
-    project_directory = project_json['parameters']['project_path']
     if not os.path.exists(project_directory):
         raise ValueError('Project directory "'+str(project_directory)+'" does not exist.')
     if not os.path.isdir(project_directory):
@@ -78,7 +77,7 @@ def injest_project(project_json,analysis_json):
     injest_errors = []
     for sample_path, sample_name in [(os.path.join(project_directory,x),x) for x in folder_names]:
         #print(sample_name)
-        sample_json, injest_success0, injest_errors0 = injest_sample(sample_name,project_json,analysis_json)
+        sample_json, injest_success0, injest_errors0 = injest_sample(sample_name,project_json,analysis_json,project_directory)
         injest_errors += injest_errors0
         injest_success  = injest_success0 and injest_success
         samples.append(sample_json)
@@ -86,7 +85,7 @@ def injest_project(project_json,analysis_json):
 
 
 
-def injest_sample(sample_name,project_json,analysis_json):
+def injest_sample(sample_name,project_json,analysis_json,project_directory):
     """
     Read a path pointing to an InForm sample folder
 
@@ -103,7 +102,6 @@ def injest_sample(sample_name,project_json,analysis_json):
     project_schema_validator.validate(project_json)
     analysis_schema_validator.validate(analysis_json)
     # a. Make sure the project directory exists
-    project_directory = project_json['parameters']['project_path']
     if not os.path.exists(project_directory):
         raise ValueError('Project directory "'+str(project_directory)+'" does not exist.')
     if not os.path.isdir(project_directory):
@@ -258,7 +256,7 @@ def _do_region_annotation_GIMP_TSI(image_name,sample_path,image_files):
     if os.path.exists(prospective2):
         d2 =  _generate_file_dictionary(prospective2)
         d2['mask_label'] = 'TSI Line'
-    outputs += [d2]
+        outputs += [d2]
     return outputs
 
 def _do_region_annotation_GIMP_CUSTOM(image_name,sample_path,image_files,custom_label):

@@ -28,11 +28,6 @@
                     "type":"string",
                     "description":"The panel name."
                 },
-                "project_path":{
-                    "title":"Project Path",
-                    "type":["null","string"],
-                    "description":"Location of the folder. By default assume this folder is a standard format project."
-                },
                 "microns_per_pixel":{
                     "title":"Microns Per Pixel",
                     "type":"number",
@@ -40,7 +35,8 @@
                     "description":"Location of the folder."
                 }
             },
-            "additionalProperties":false
+            "additionalProperties":false,
+            "required":["microns_per_pixel","project_name"]
         }
     },
     "additionalProperties":false,
