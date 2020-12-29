@@ -17,10 +17,14 @@ sys.setrecursionlimit(15000)
 
 def main(args):
     if args.verbose:
-        logging.basicConfig(level=logging.DEBUG,filename=args.output)
+        logging.basicConfig(level=logging.DEBUG,filename=args.output_log)
     else:
-        logging.basicConfig(level=logging.WARNING,filename=args.output)
+        logging.basicConfig(level=logging.WARNING,filename=args.output_log)
     logger = logging.getLogger("main")
+
+    #make sure we can do the outputs if they are set
+    if args.output_json and not args.report_excel:
+        raise ValueError("cannot output a run setup without a report_excel")
 
     total_success = True
 
@@ -98,9 +102,23 @@ def main(args):
         _lightly_validate_sample(sample_file,analysis_json,project_json,panel_json,project_path)
 
     if total_success:
-        print("All tests passed.")
+        logger.info("All tests passed.")
 
-    return
+    if not args.report_excel or not total_success:
+        return None
+
+    output = {
+        'project':project_json,
+        'panel':panel_json,
+        'analysis':analysis_json,
+        'report':report_json,
+        'sample_files':sample_files
+    }
+    if args.output_json:
+        with open(args.output_json,'wt') as of:
+            of.write(json.dumps(output,indent=2))
+
+    return output
 
 def _allowed_phenotypes(analysis_json):
    # Extract the mutually exclusive phenotypes and binary phenotype target names
@@ -185,6 +203,13 @@ def _lightly_validate_image_frame(image_frame,export_name,analysis_json,panel_js
       firstline = inf.readline()
       if 'microns' in firstline:
          raise ValueError('Detected microns instead of pixels in cell seg data')
+
+   logger.info("checking for membrane segmentation")
+   # Check for the microns issue
+   with open(image_frame['image_data']['cell_seg_data_txt']['file_path'],'rt') as inf:
+      firstline = inf.readline()
+      if not 'Entire' in firstline:
+         raise ValueError('Failed to detected membrane-based segmentation in cell seg data')
 
    image_name = image_frame['image_name']
 
@@ -273,9 +298,12 @@ def _lightly_validate_image_frame(image_frame,export_name,analysis_json,panel_js
    # check phenotypes
    logger.info("check mutually exclusive phenotypes")
    expected_phenotypes = [x['phenotype_name'] for x in analysis_json['mutually_exclusive_phenotypes'] if x['export_name']==export_name]
-   unexpected = list(set(expected_phenotypes) - set(phenotypes))
+   unexpected = list(set(phenotypes) - set(expected_phenotypes))
    if len(unexpected) > 0:
       raise ValueError("Image "+str(image_name)+" in "+str(export_name)+" contained unexpected phenotype(s) not defined in the analysis "+str(unexpected))
+   missing = list(set(expected_phenotypes) - set(phenotypes))
+   if len(missing) > 1:
+      logger.warning("missing phenotype(s) "+str(missing))
 
    # check binary_names
    logger.info("check binary phenotypes")
@@ -314,7 +342,8 @@ def do_inputs():
    parser.add_argument('--analysis_excel',metavar='AnalysisExcelPath',required=True,help="The path to an excel file of a filled-in analysis template.")
    parser.add_argument('--report_excel',metavar='ReportExcelPath',help="The path to an excel file of a filled-in report template.")
    parser.add_argument('--sample_name',metavar='SampleName',help="Only check one sample.")
-   parser.add_argument('--output',help="Save the validation log")
+   parser.add_argument('--output_log',help="Save the validation log")
+   parser.add_argument('--output_json',help="Save the json that defines the run")
    parser.add_argument('--temp',help="Specify a temporary directory")
    parser.add_argument('--verbose',action='store_true',help="Report info and debug")
    args = parser.parse_args()

@@ -97,7 +97,7 @@ def _fix_width(worksheet,min_width=20,padding=3):
 
 
 def do_report_output(output_path):
-   _validator = get_validator(files('schema_data').joinpath('report.json'))
+   _validator = get_validator(files('schema_data.inputs').joinpath('report_definition.json'))
    _schema = _validator.schema
    wb = Workbook()
    default_names = wb.sheetnames

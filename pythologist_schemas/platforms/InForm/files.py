@@ -20,7 +20,7 @@ g. Make sure there are not image frames that do not have a cell seg data since t
 h. Make sure that the required images for each annotation strategy are present
 
 """
-import os, re, time, stat, hashlib
+import os, re, time, stat, hashlib, logging
 from importlib_resources import files
 from pythologist_schemas import get_validator
 
@@ -154,17 +154,28 @@ def injest_sample(sample_name,project_json,analysis_json,project_directory):
     return sample_files, True, []
 
 def _inspect_export_folder(export_path,sample_name,analysis_json):
-    #print(export_path)
+    logger = logging.getLogger("insepct export folder")
+    prog = re.compile('^(.+)_cell_seg_data\.txt$')
     observed_files = [x for x in os.listdir(export_path) if x[0]!='.']
+    # Now look for individual frames
+    frame_names = [prog.match(x).group(1) for x in observed_files if prog.match(x)]
+
+
+    # figure out if we are seeing
     unwanted_folders = [x for x in observed_files if os.path.isdir(os.path.join(export_path,x))]
     if len(unwanted_folders) > 0:
         raise ValueError('Unexpected folder(s) present in the export folder '+str(unwanted_folders))
-    misnamed = [os.path.join(export_path,x) for x in observed_files if not x.startswith(sample_name+'_')]
+
+    # See if there are any files present that are not part of an image with a cell seg data
+    for file_name in observed_files:
+        if len([x for x in frame_names if file_name.startswith(x+"_")])==0:
+            raise ValueError("Found an unexpected file "+str(file_name)+" that isnt prefixed the same as the cell_seg_data files.")
+
+
+    _temp, export_name = os.path.split(export_path)
+    misnamed = [x for x in frame_names if not x.startswith(sample_name+'_')]
     if len(misnamed) > 0:
-        raise ValueError('Misnamed file(s) do not start with the expected sample name "'+str(sample_name)+'" '+str(misnamed))
-    # Now look for individual frames
-    prog = re.compile('^(.+)_cell_seg_data\.txt$')
-    frame_names = [prog.match(x).group(1) for x in observed_files if prog.match(x)]
+        logger.warning('Image file(s) do not start with the anticipated sample name "'+str(export_name)+'" "'+str(sample_name)+'" '+str(misnamed))
 
     # g. Make sure there are not image frames that do not have a cell seg data
     all_files = set(observed_files.copy())
