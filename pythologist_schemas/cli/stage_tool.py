@@ -117,7 +117,7 @@ def main(args):
     if args.output_json:
         with open(args.output_json,'wt') as of:
             of.write(json.dumps(output,indent=2))
-
+    print(json.dumps(output,indent=2))
     return output
 
 def _allowed_phenotypes(analysis_json):

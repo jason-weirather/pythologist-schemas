@@ -133,6 +133,7 @@ def injest_sample(sample_name,project_json,analysis_json,project_directory):
     # Set up the output file
     sample_files = {
             'sample_name':sample_name,
+            'sample_directory':sample_path,
             'exports':[
             ]
     }

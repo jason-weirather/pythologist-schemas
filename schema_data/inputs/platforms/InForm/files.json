@@ -113,6 +113,10 @@
         "sample_name":{
             "type":"string"
         },
+        "sample_directory":{
+            "description":"The directory within the project SAMPLES directory corresponding to this sample.",
+            "type":"string"
+        },
         "exports":{
             "type":"array",
             "items":{
@@ -144,5 +148,5 @@
         }
     },
     "additionalProperties":false,
-    "required":["sample_name","exports"]
+    "required":["sample_name","exports","sample_directory"]
 }
