@@ -33,13 +33,19 @@
                 "stderr_density_mm2":{
                     "type":["numeric","null"]
                 },
-                "measured_image_count":{
-                    "type":"numeric"
-                },
                 "image_count":{
                     "type":"numeric"
+                },
+                "measured_image_count":{
+                    "type":"numeric"
                 }
-            }
+            },
+            "additionalProperties":false,
+            "required":["region_name","population_name",
+                        "cummulative_region_area_pixels","cummulative_region_area_mm2","cummulative_count","cummulative_density_mm2",
+                        "mean_density_mm2","stddev_density_mm2","stderr_density_mm2",
+                        "image_count","measured_image_count"
+                       ]
         },
         "image_density_row":{
             "type":"object",
@@ -61,11 +67,10 @@
                 },
                 "density_mm2":{
                     "type":"numeric"
-                },
-                "image_name":{
-                    "type":"string"
                 }
-            }
+            },
+            "additionalProperties":false,
+            "required":["region_name","population_name","region_area_pixels","region_area_mm2","count","density_mm2"]
         },
         "sample_percentage_row":{
             "type":"object",
@@ -79,7 +84,7 @@
                 "cummulative_numerator":{
                     "type":"integer"
                 },
-                "cummulative_denominator":{
+                "cummulative_denominator_count":{
                     "type":"integer"
                 },
                 "cummulative_fraction":{
@@ -112,7 +117,13 @@
                 "measured_image_count":{
                     "type":"integer"
                 }
-            }
+            },
+            "additionalProperties":false,
+            "required":["region_name","population_name",
+                        "cummulative_denominator_count","cummulative_denominator_count","cummulative_fraction","cummulative_percent",
+                        "mean_fraction","stdev_fraction","stderr_fraction","mean_percent","stdev_percent",
+                        "image_count","measured_image_count"
+                       ]
         },
         "image_percentage_row":{
             "type":"object",
@@ -123,10 +134,10 @@
                 "population_name":{
                     "type":"string"
                 },
-                "numerator":{
+                "numerator_count":{
                     "type":"integer"
                 },
-                "denominator":{
+                "denominator_count":{
                     "type":"integer"
                 },
                 "fraction":{
@@ -134,38 +145,64 @@
                 },
                 "percent":{
                     "type":["numeric","null"]
-                },
-                "image_name":{
-                    "type":"string"
                 }
-            }
+            },
+            "additionalProperties":false,
+            "required":["region_name","population_name","numerator_count","denominator_count","fraction","percent"]
         }
     },
     "properties":{
         "sample_name":{
             "type":"string"
         },
-        "sample_density":{
-            "description":"Report for aggrogated measurements within a sample for density.",
-            "type":"array",
-            "items":{"$ref":"#/definitions/sample_density_row"}
+        "aggrogated_reports":{
+            "type":"object",
+            "properties":{
+                "sample_count_densities":{
+                    "description":"Report for aggrogated measurements within a sample for density.",
+                    "type":"array",
+                    "items":{"$ref":"#/definitions/sample_density_row"}
+                },
+                "sample_count_percentages":{
+                    "description":"Report for aggrogated measurements within a sample for percentages.",
+                    "type":"array",
+                    "items":{"$ref":"#/definitions/sample_percentage_row"}
+                }
+            },
+            "additionalProperties":false,
+            "required":["sample_count_densities","sample_count_percentages"]
         },
-        "image_density":{
-            "description":"Report for density in a given image.",
-            "type":"array",
-            "items":{"$ref":"#/definitions/image_density_row"}
+        "image_reports":{
+            "type":"object",
+            "properties":{
+                "image_name":{
+                    "type":"string"
+                },
+                "images":{
+                    "type":"array",
+                    "items":{
+                        "description":"The reports at the individual image frame level.",
+                        "type":"object",
+                        "properties":{
+                            "image_count_densities":{
+                                "description":"Report for density in a given image.",
+                                "type":"array",
+                                "items":{"$ref":"#/definitions/image_density_row"}
+                            },
+                            "image_count_percentages":{
+                                "description":"Report for measurements within a frame for percentages.",
+                                "type":"array",
+                                "items":{"$ref":"#/definitions/image_percentage_row"}
+                            }
+                        },
+                        "required":["image_count_densities","image_count_percentages"]
+                    }
+                }
+            },
+            "additionalProperties":false,
+            "required":["image_name","images"]
         },
-        "sample_percentage":{
-            "description":"Report for aggrogated measurements within a sample for percentages.",
-            "type":"array",
-            "items":{"$ref":"#/definitions/sample_percentage_row"}
-        },
-        "image_percentage":{
-            "description":"Report for measurements within a frame for percentages.",
-            "type":"array",
-            "items":{"$ref":"#/definitions/image_percentage_row"}
-        }
     },
     "additionalProperties":false,
-    "required":["sample_name","sample_density","image_density","sample_percentage","image_percentage"]
+    "required":["sample_name","aggrogated_reports","image_reports"]
 }

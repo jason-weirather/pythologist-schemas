@@ -47,8 +47,22 @@
                     "title":"Report Version",
                     "type":"string",
                     "description":"Version of the report"
+                },
+                "minimum_denominator_count":{
+                    "title":"Minimum denominator count",
+                    "description":"Minimum cell count in a denominator to measure a percentage",
+                    "type":"integer",
+                    "default":1
+                },
+                "minimum_density_region_size_mm2":{
+                    "title":"Minimum region size mm2",
+                    "description":"Minimum region size in mm2 to measure a density",
+                    "type":"integer",
+                    "default":0
                 }
-            }
+            },
+            "additionalProperties":false,
+            "required":["report_name","report_version","minimum_denominator_count","minimum_density_region_size_mm2"]
         },
         "population_densities":{
             "title":"Population Densities",
