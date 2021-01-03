@@ -121,7 +121,10 @@ def execute_sample(files_json,inputs,run_id,temp_dir=None,verbose=False):
         percentage_populations.append(_pop)
 
     # Populate outputs
-    cnts = cdf.counts()
+
+    # Fetch counts based on qc constraints
+    cnts = cdf.counts(minimum_region_size_pixels=inputs['report']['parameters']['minimum_density_region_size_pixels'],
+                      minimum_denominator_count=inputs['report']['parameters']['minimum_denominator_count'])
 
     logger.info("frame-level densities")
     fcnts = cnts.frame_counts(subsets=density_populations)
@@ -157,7 +160,7 @@ def execute_sample(files_json,inputs,run_id,temp_dir=None,verbose=False):
                 'image_count_percentages':_organize_frame_percentages(fpcnts,inputs['report']['parameters']['minimum_denominator_count'])
             }
         })
-        
+
     # Do sample level densities
     output['sample_reports']['sample_cummulative_count_densities'] = \
         _organize_sample_cummulative_count_densities(scnts,inputs['report']['parameters']['minimum_density_region_size_pixels'])
