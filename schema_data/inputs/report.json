@@ -54,15 +54,15 @@
                     "type":"integer",
                     "default":1
                 },
-                "minimum_density_region_size_mm2":{
-                    "title":"Minimum region size mm2",
-                    "description":"Minimum region size in mm2 to measure a density",
+                "minimum_density_region_size_pixels":{
+                    "title":"Minimum region size pixels",
+                    "description":"Minimum region size in pixels to measure a density",
                     "type":"integer",
-                    "default":0
+                    "default":1
                 }
             },
             "additionalProperties":false,
-            "required":["report_name","report_version","minimum_denominator_count","minimum_density_region_size_mm2"]
+            "required":["report_name","report_version","minimum_denominator_count","minimum_density_region_size_pixels"]
         },
         "population_densities":{
             "title":"Population Densities",

@@ -119,7 +119,7 @@ def execute_sample(files_json,inputs,run_id,temp_dir=None,verbose=False):
                  )
         percentage_populations.append(_pop)
 
-
+    # Populate outputs
     cnts = cdf.counts()
 
     logger.info("frame-level densities")
@@ -132,8 +132,50 @@ def execute_sample(files_json,inputs,run_id,temp_dir=None,verbose=False):
     logger.info("sample-level percentages")
     spcnts = cnts.sample_percentages(percentage_logic_list=percentage_populations)
 
-    print(fpcnts.columns.tolist())
-    return
+    #prepare an output json 
+    output = {
+        "parameters":{
+            "sample_name":files_json['sample_name'],
+            "run_id":run_id,        
+        },
+        "aggrogated_reports":{
+            'sample_count_densities':[],
+            'sample_count_percentages':[]
+        },
+        "images":[]
+    }
+    for image_name in [x['image_name'] for x in files_json['exports'][0]['images']]:
+        output['images'].append({
+            'image_name':image_name,
+            'image_reports':{
+                'image_count_densities':[],
+                'image_count_percentages':[]
+            }
+        })
+    output['aggrogated_reports']['sample_count_densities'] = _sample_count_densities(scnts,inputs['report']['parameters'])
+    print(scnts.columns.tolist())
+    return output
+
+def _sample_count_densities(sample_count_densities,report_parameters):
+    # Make the list of sample count density features
+
+    # make an object to convert pythologist internal count reports to the expected column names
+    conv = {
+        'region_label':'region_name',
+        'phenotype_label':'population_name',
+        'cummulative_region_area_pixels':'cummulative_region_area_pixels',
+        'cummulative_region_area_mm2':'cummulative_region_area_mm2',
+        'cummulative_count':'cummulative_count',
+        'cummulative_density_mm2':'cummulative_density_mm2',
+        'mean_density_mm2':'mean_density_mm2',
+        'stddev_density_mm2':'stddev_density_mm2',
+        'stderr_desnity_mm2':'stderr_desnity_mm2',
+        'measured_frame_count':'measured_image_count',
+        'frame_count':'image_count'
+    }
+    _df = sample_count_densities.rename(columns=conv)
+    _df['qc_pass'] = True,
+    _df.loc[_df['cummulative_region_area_mm2']]
 
 def do_inputs():
     parser = argparse.ArgumentParser(
