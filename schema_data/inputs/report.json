@@ -31,6 +31,15 @@
             },
             "minItems":1,
             "uniqueItems":true
+        },
+        "region_list":{
+            "type":"array",
+            "description":"A list of region names",
+            "items":{
+                "type":"string"
+            },
+            "minItems":1,
+            "uniqueItems":true
         }
     },
     "properties":{
@@ -63,6 +72,24 @@
             },
             "additionalProperties":false,
             "required":["report_name","report_version","minimum_denominator_count","minimum_density_region_size_pixels"]
+        },
+        "region_selection":{
+            "title":"Region Selection",
+            "type":"array",
+            "description":"Choose the regions to output in the report.",
+            "items":{
+                "type":"object",
+                "properties":{
+                    "report_region_name":{
+                        "title":"Report Region Name",
+                        "type":"string",
+                        "description":"Label to give this cell population in the report."
+                    },
+                    "regions_to_combine":{"$ref":"#/definitions/region_name_list"}
+                },
+                "additionalProperties":false,
+                "required":["report_region_name","regions_to_combine"]
+            }
         },
         "population_densities":{
             "title":"Population Densities",

@@ -33,6 +33,28 @@
             "additionalProperties":false,
             "required":["report_name","report_version","minimum_denominator_count","minimum_density_region_size_pixels"]
         },
+        "region_selection":{
+            "title":"Region Selection",
+            "type":"array",
+            "description":"Choose the regions to output in the report.",
+            "items":{
+                "type":"object",
+                "properties":{
+                    "report_region_name":{
+                        "title":"Report Region Name",
+                        "type":"string",
+                        "description":"Label to give this region name in the report."
+                    },
+                    "regions_to_combine":{
+                        "title":"Regions to Combine",
+                        "type":"string",
+                        "description":"Comma separated list of region names"
+                    }
+                },
+                "additionalProperties":false,
+                "required":["population_name","mutually_exclusive_phenotypes"]
+            }
+        },
         "population_densities":{
             "title":"Population Densities",
             "type":"array",
