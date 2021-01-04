@@ -11,6 +11,9 @@ from pythologist_reader.formats.inform import read_standard_format_sample_to_pro
 from pythologist import CellDataFrame, SubsetLogic as SL, PercentageLogic as PL
 import logging, argparse, json, uuid
 from collections import OrderedDict
+import pandas as pd
+from datetime import datetime
+
 
 def cli():
     args = do_inputs()
@@ -47,10 +50,26 @@ def main(args):
         _validator.validate(sample_input_json)
 
     # Now lets step through sample-by-sample executing the pipeline
-
-    for sample_input_json in inputs['sample_files']:
-        sample_output_json = execute_sample(sample_input_json,inputs,run_id,verbose=args.verbose)
-    return
+    output = {
+        'run_id':run_id,
+        'time':str(datetime.now()),
+        'project_name':inputs['project']['parameters']['project_name'],
+        'report_name':inputs['report']['parameters']['report_name'],
+        'report_version':inputs['report']['parameters']['report_version'],
+        'analysis_name':inputs['analysis']['parameters']['analysis_name'],
+        'analysis_version':inputs['analysis']['parameters']['analysis_version'],
+        'panel_name':inputs['panel']['parameters']['panel_name'],
+        'panel_version':inputs['panel']['parameters']['panel_version'],
+        'sample_outputs':[execute_sample(x,inputs,run_id,verbose=args.verbose) for x in inputs['sample_files']]
+    }
+    logger.info("Finished reading creating output. Validate output format.")
+    _validator = get_validator(files('schema_data').joinpath('report_output.json'))
+    _validator.validate(output)
+    logger.info("Validated output schema against schema")
+    if args.output_json:
+        with open(args.output_json,'wt') as of:
+            of.write(json.dumps(output,indent=2))
+    return 
 
 def execute_sample(files_json,inputs,run_id,temp_dir=None,verbose=False):
     logger = logging.getLogger(str(files_json['sample_name']))
@@ -120,32 +139,51 @@ def execute_sample(files_json,inputs,run_id,temp_dir=None,verbose=False):
                  )
         percentage_populations.append(_pop)
 
-    # Populate outputs
+    # Now calculate outputs for each region we are working with
+    fcnts = []
+    scnts = []
+    fpcnts = []
+    spcnts = []
+    for report_region_row in inputs['report']['region_selection']:
+        # Iterate over each region combining them to the name specified
+        report_region_name = report_region_row['report_region_name']
+        regions_to_combine = report_region_row['regions_to_combine']
+        logger.info("extracting data for region '"+str(report_region_name)+"' which is made up of "+str(regions_to_combine))
+        _cdf = cdf.combine_regions(regions_to_combine,report_region_name)
+        # Fetch counts based on qc constraints
+        _cnts = _cdf.counts(minimum_region_size_pixels=inputs['report']['parameters']['minimum_density_region_size_pixels'],
+                           minimum_denominator_count=inputs['report']['parameters']['minimum_denominator_count'])
+        logger.info("frame-level densities")
+        _fcnts = _cnts.frame_counts(subsets=density_populations)
+        _fcnts = _fcnts.loc[_fcnts['region_label']==report_region_name,:]
+        fcnts.append(_fcnts)
+        logger.info("sample-level densities")
+        _scnts = _cnts.sample_counts(subsets=density_populations)
+        _scnts = _scnts.loc[_scnts['region_label']==report_region_name,:]
+        scnts.append(_scnts)
 
-    # Fetch counts based on qc constraints
-    cnts = cdf.counts(minimum_region_size_pixels=inputs['report']['parameters']['minimum_density_region_size_pixels'],
-                      minimum_denominator_count=inputs['report']['parameters']['minimum_denominator_count'])
 
-    logger.info("frame-level densities")
-    fcnts = cnts.frame_counts(subsets=density_populations)
-    logger.info("sample-level densities")
-    scnts = cnts.sample_counts(subsets=density_populations)
+        logger.info("frame-level percentages")
+        _fpcnts = _cnts.frame_percentages(percentage_logic_list=percentage_populations)
+        _fpcnts = _fpcnts.loc[_fpcnts['region_label']==report_region_name,:]
+        fpcnts.append(_fpcnts)
+        logger.info("sample-level percentages")
+        _spcnts = _cnts.sample_percentages(percentage_logic_list=percentage_populations)
+        _spcnts = _spcnts.loc[_spcnts['region_label']==report_region_name,:]
+        spcnts.append(_spcnts)
 
-    logger.info("frame-level percentages")
-    fpcnts = cnts.frame_percentages(percentage_logic_list=percentage_populations)
-    logger.info("sample-level percentages")
-    spcnts = cnts.sample_percentages(percentage_logic_list=percentage_populations)
+    fcnts = pd.concat(fcnts).reset_index(drop=True)
+    scnts = pd.concat(scnts).reset_index(drop=True)
+    fpcnts = pd.concat(fpcnts).reset_index(drop=True)
+    spcnts = pd.concat(spcnts).reset_index(drop=True)
 
     #prepare an output json 
     output = {
-        "parameters":{
-            "sample_name":files_json['sample_name'],
-            "run_id":run_id,        
-        },
+        "sample_name":files_json['sample_name'],
         "sample_reports":{
-            'sample_cummulative_count_densities':[],
+            'sample_cumulative_count_densities':[],
             'sample_aggregate_count_densities':[],
-            'sample_cummulative_count_percentages':[],
+            'sample_cumulative_count_percentages':[],
             'sample_aggregate_count_percentages':[]
         },
         "images":[]
@@ -162,19 +200,18 @@ def execute_sample(files_json,inputs,run_id,temp_dir=None,verbose=False):
         })
 
     # Do sample level densities
-    output['sample_reports']['sample_cummulative_count_densities'] = \
-        _organize_sample_cummulative_count_densities(scnts,inputs['report']['parameters']['minimum_density_region_size_pixels'])
+    output['sample_reports']['sample_cumulative_count_densities'] = \
+        _organize_sample_cumulative_count_densities(scnts,inputs['report']['parameters']['minimum_density_region_size_pixels'])
     output['sample_reports']['sample_aggregate_count_densities'] = \
         _organize_sample_aggregate_count_densities(scnts,inputs['report']['parameters']['minimum_density_region_size_pixels'])
 
     # Now do percentages
-    output['sample_reports']['sample_cummulative_count_percentages'] = \
-        _organize_sample_cummulative_percentages(spcnts,inputs['report']['parameters']['minimum_density_region_size_pixels'])
+    output['sample_reports']['sample_cumulative_count_percentages'] = \
+        _organize_sample_cumulative_percentages(spcnts,inputs['report']['parameters']['minimum_density_region_size_pixels'])
     output['sample_reports']['sample_aggregate_count_percentages'] = \
         _organize_sample_aggregate_percentages(spcnts,inputs['report']['parameters']['minimum_density_region_size_pixels'])
 
 
-    print(json.dumps(output,indent=2))
     return output
 
 def _organize_frame_percentages(frame_percentages,min_denominator_count):
@@ -190,8 +227,6 @@ def _organize_frame_percentages(frame_percentages,min_denominator_count):
         'percent':'percent'
     })
     keeper_columns = list(conv.values())
-    #print(keeper_columns)
-    #print(frame_count_densities.rename(columns=conv).columns)
     frame_report = frame_percentages.rename(columns=conv).loc[:,keeper_columns]
     frame_report['measure_qc_pass'] = True
     frame_report.loc[frame_report['denominator_count'] < min_denominator_count,'measure_qc_pass'] = False
@@ -216,7 +251,7 @@ def _organize_frame_count_densities(frame_count_densities,min_pixel_count):
     frame_report['measure_qc_pass'] = True
     frame_report.loc[frame_report['region_area_pixels'] < min_pixel_count,'measure_qc_pass'] = False
     return [row.to_dict() for index,row in frame_report.iterrows()]
-def _organize_sample_cummulative_count_densities(sample_count_densities,min_pixel_count):
+def _organize_sample_cumulative_count_densities(sample_count_densities,min_pixel_count):
     # Make the list of sample count density features in dictionary format
 
     # make an object to convert pythologist internal count reports to the expected column names
@@ -224,16 +259,16 @@ def _organize_sample_cummulative_count_densities(sample_count_densities,min_pixe
         'region_label':'region_name',
         'phenotype_label':'population_name',
         'frame_count':'image_count',
-        'cummulative_region_area_pixels':'cummulative_region_area_pixels',
-        'cummulative_region_area_mm2':'cummulative_region_area_mm2',
-        'cummulative_count':'cummulative_count',
-        'cummulative_density_mm2':'cummulative_density_mm2'
+        'cumulative_region_area_pixels':'cumulative_region_area_pixels',
+        'cumulative_region_area_mm2':'cumulative_region_area_mm2',
+        'cumulative_count':'cumulative_count',
+        'cumulative_density_mm2':'cumulative_density_mm2'
     })
     keeper_columns = list(conv.values())
 
     sample_report = sample_count_densities.rename(columns=conv).loc[:,keeper_columns]
     sample_report['measure_qc_pass'] = True
-    sample_report.loc[sample_report['cummulative_region_area_pixels'] < min_pixel_count,'measure_qc_pass'] = False
+    sample_report.loc[sample_report['cumulative_region_area_pixels'] < min_pixel_count,'measure_qc_pass'] = False
     
     return [row.to_dict() for index,row in sample_report.iterrows()]
 
@@ -253,13 +288,13 @@ def _organize_sample_aggregate_count_densities(sample_count_densities,min_pixel_
     keeper_columns = list(conv.values())
 
     sample_report = sample_count_densities.rename(columns=conv).loc[:,keeper_columns]
-    sample_report['aggregate_measure_qc_pass'] = True
-    sample_report.loc[sample_report['aggregate_measured_image_count'] < 1,'aggregate_measure_qc_pass'] = False
+    sample_report['measure_qc_pass'] = True
+    sample_report.loc[sample_report['aggregate_measured_image_count'] < 1,'measure_qc_pass'] = False
     
     return [row.to_dict() for index,row in sample_report.iterrows()]
 
 
-def _organize_sample_cummulative_percentages(sample_count_densities,min_denominator_count):
+def _organize_sample_cumulative_percentages(sample_count_densities,min_denominator_count):
     # Make the list of sample count density features in dictionary format
 
     # make an object to convert pythologist internal count reports to the expected column names
@@ -267,16 +302,16 @@ def _organize_sample_cummulative_percentages(sample_count_densities,min_denomina
         'region_label':'region_name',
         'phenotype_label':'population_name',
         'frame_count':'image_count',
-        'cummulative_numerator':'cummulative_numerator_count',
-        'cummulative_denominator':'cummulative_denominator_count',
-        'cummulative_fraction':'cummulative_fraction',
-        'cummulative_percent':'cummulative_percent'
+        'cumulative_numerator':'cumulative_numerator_count',
+        'cumulative_denominator':'cumulative_denominator_count',
+        'cumulative_fraction':'cumulative_fraction',
+        'cumulative_percent':'cumulative_percent'
     })
     keeper_columns = list(conv.values())
 
     sample_report = sample_count_densities.rename(columns=conv).loc[:,keeper_columns]
     sample_report['measure_qc_pass'] = True
-    sample_report.loc[sample_report['cummulative_denominator_count'] < min_denominator_count,'measure_qc_pass'] = False
+    sample_report.loc[sample_report['cumulative_denominator_count'] < min_denominator_count,'measure_qc_pass'] = False
     
     return [row.to_dict() for index,row in sample_report.iterrows()]
 

@@ -52,7 +52,7 @@
                     }
                 },
                 "additionalProperties":false,
-                "required":["population_name","mutually_exclusive_phenotypes"]
+                "required":["report_region_name","regions_to_combine"]
             }
         },
         "population_densities":{

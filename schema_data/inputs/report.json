@@ -32,7 +32,7 @@
             "minItems":1,
             "uniqueItems":true
         },
-        "region_list":{
+        "region_name_list":{
             "type":"array",
             "description":"A list of region names",
             "items":{

@@ -72,7 +72,7 @@ def main(args):
         _fname = files('schema_data.inputs').joinpath('report_definition.json')
         report_definition_json, report_definition_success, report_definition_errors  = excel_to_json(args.report_excel, \
                                                                     _fname,
-                                                                    ['Population Percentages','Population Densities'], \
+                                                                    ['Region Selection','Population Percentages','Population Densities'], \
                                                                     ignore_extra_parameters=False)
         total_success = total_success and report_definition_success
 
@@ -80,7 +80,8 @@ def main(args):
 
         report_compatibility_success, report_compatibility_errors = _report_compatibility(report_json,
                                                                           total_mutually_exclusive_phenotypes,
-                                                                          total_binary_phenotype_target_names)
+                                                                          total_binary_phenotype_target_names,
+                                                                          [x['region_name'] for x in analysis_json['regions']])
 
         total_success = total_success and report_compatibility_success
 
@@ -136,7 +137,7 @@ def _allowed_phenotypes(analysis_json):
                                          [x['phenotype_name'] for x in analysis_json['mutually_exclusive_phenotypes'] if x['convert_to_binary']]
    return total_mutually_exclusive_phenotypes, total_binary_phenotype_target_names
 
-def _report_compatibility(report_json,total_mutually_exclusive_phenotypes,total_binary_phenotype_target_names):
+def _report_compatibility(report_json,total_mutually_exclusive_phenotypes,total_binary_phenotype_target_names,region_names):
     # start with the population densities
     logger = logging.getLogger("report contents")
     for i,measure in enumerate(report_json['population_densities']):
@@ -155,6 +156,13 @@ def _report_compatibility(report_json,total_mutually_exclusive_phenotypes,total_
         if len(_unknown) > 0: raise ValueError("Percentage report contains a denominator mutually exclusive phenotype(s) thats not accounted for "+str(_unknown))
         _unknown = set([x['target_name'] for x in measure['denominator_binary_phenotypes']])-set(total_binary_phenotype_target_names)
         if len(_unknown) > 0: raise ValueError("Percentage report contains a denominator phenotype(s) thats not accounted for "+str(_unknown))
+    logger.info("checking the uniqueness of report region names")
+    report_region_names = [x['report_region_name'] for x in report_json['region_selection']]
+    if len(set(report_region_names)) < len(report_region_names):
+        raise ValueError("Error there is duplicates among the report region name")
+    for i, measure in enumerate(report_json['region_selection']):
+        _unknown = set(measure['regions_to_combine'])-set(region_names)
+        if len(_unknown) > 0: raise ValueError("Region name to combine is not among defined regions "+str(_unknown))
 
     return True, []
 def _lightly_validate_sample(sample_file,analysis_json,project_json,panel_json,project_directory):
@@ -318,7 +326,10 @@ def _lightly_validate_image_frame(image_frame,export_name,analysis_json,panel_js
    # Write in an exception for if there are no regions and no annotations are given.
    if len(expected_regions)==0 and \
       analysis_json['parameters']['region_annotation_strategy'] == 'NO_ANNOTATION':
-      expected_regions = ['Any']
+      raise ValueError("To use NO_ANNOTATION, you must define one region as 'Any'")
+   if len(expected_regions)==1 and analysis_json['parameters']['region_annotation_strategy'] == 'NO_ANNOTATION' and \
+      analysis_json['regions'][0]['region_name'] != 'Any':
+      raise ValueError("If using NO_ANNOTATION you must define the only region to be 'Any'")
 
    unexpected = list(set(regions)-set(expected_regions))
    if len(unexpected) > 0:

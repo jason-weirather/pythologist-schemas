@@ -1,5 +1,5 @@
-import argparse, json, os
-from jsonschema import Draft4Validator, RefResolver
+import argparse, json, os, sys
+from jsonschema import Draft7Validator, RefResolver, SchemaError
 
 def get_validator(filename, base_uri=''):
 	# Adapated from https://www.programcreek.com/python/example/83374/jsonschema.RefResolver
@@ -20,16 +20,17 @@ def get_validator(filename, base_uri=''):
     schema = get_json_from_file(filename)
     try:
         # Check schema via class method call. Works, despite IDE complaining
-        Draft4Validator.check_schema(schema)
+        Draft7Validator.check_schema(schema)
         #print("Schema %s is valid JSON" % filename)
     except SchemaError:
         raise
+        sys.exit(1)
     if base_uri:
         resolver = RefResolver(base_uri=base_uri,
                                referrer=filename)
     else:
         resolver = None
-    return Draft4Validator(schema=schema,
+    return Draft7Validator(schema=schema,
                            resolver=resolver) 
 
 def do_inputs():
