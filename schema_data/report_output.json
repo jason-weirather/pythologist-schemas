@@ -22,7 +22,7 @@
                     "type":"integer"
                 },
                 "cumulative_density_mm2":{
-                    "type":"number"
+                    "type":["number","null"]
                 },
                 "image_count":{
                     "type":"number"
@@ -47,13 +47,13 @@
                     "type":"string"
                 },
                 "aggregate_mean_density_mm2":{
-                    "type":"number"
+                    "type":["number","null"]
                 },
                 "aggregate_stddev_density_mm2":{
-                    "type":"number"
+                    "type":["number","null"]
                 },
                 "aggregate_stderr_density_mm2":{
-                    "type":"number"
+                    "type":["number","null"]
                 },
                 "image_count":{
                     "type":"number"
@@ -90,7 +90,7 @@
                     "type":"integer"
                 },
                 "density_mm2":{
-                    "type":"number"
+                    "type":["number","null"]
                 },
                 "measure_qc_pass":{
                     "type":"boolean"
@@ -115,10 +115,10 @@
                     "type":"integer"
                 },
                 "cumulative_fraction":{
-                    "type":"number"
+                    "type":["number","null"]
                 },
                 "cumulative_percent":{
-                    "type":"number"
+                    "type":["number","null"]
                 },
                 "image_count":{
                     "type":"integer"
@@ -143,22 +143,22 @@
                     "type":"string"
                 },
                 "aggregate_mean_fraction":{
-                    "type":"number"
+                    "type":["number","null"]
                 },
                 "aggregate_stddev_fraction":{
-                    "type":"number"
+                    "type":["number","null"]
                 },
                 "aggregate_stderr_fraction":{
-                    "type":"number"
+                    "type":["number","null"]
                 },
                 "aggregate_mean_percent":{
-                    "type":"number"
+                    "type":["number","null"]
                 },
                 "aggregate_stddev_percent":{
-                    "type":"number"
+                    "type":["number","null"]
                 },
                 "aggregate_stderr_percent":{
-                    "type":"number"
+                    "type":["number","null"]
                 },
                 "image_count":{
                     "type":"integer"
@@ -193,10 +193,10 @@
                     "type":"integer"
                 },
                 "fraction":{
-                    "type":"number"
+                    "type":["number","null"]
                 },
                 "percent":{
-                    "type":"number"
+                    "type":["number","null"]
                 },
                 "measure_qc_pass":{
                     "type":"boolean"

@@ -68,7 +68,7 @@ def main(args):
     logger.info("Validated output schema against schema")
     if args.output_json:
         with open(args.output_json,'wt') as of:
-            of.write(json.dumps(output,indent=2))
+            of.write(json.dumps(output,indent=2,allow_nan=False))
     return 
 
 def execute_sample(files_json,inputs,run_id,temp_dir=None,verbose=False):
@@ -230,6 +230,8 @@ def _organize_frame_percentages(frame_percentages,min_denominator_count):
     frame_report = frame_percentages.rename(columns=conv).loc[:,keeper_columns]
     frame_report['measure_qc_pass'] = True
     frame_report.loc[frame_report['denominator_count'] < min_denominator_count,'measure_qc_pass'] = False
+
+    frame_report = frame_report.where(pd.notnull(frame_report), None)
     return [row.to_dict() for index,row in frame_report.iterrows()]
 
 def _organize_frame_count_densities(frame_count_densities,min_pixel_count):
@@ -250,6 +252,8 @@ def _organize_frame_count_densities(frame_count_densities,min_pixel_count):
     frame_report = frame_count_densities.rename(columns=conv).loc[:,keeper_columns]
     frame_report['measure_qc_pass'] = True
     frame_report.loc[frame_report['region_area_pixels'] < min_pixel_count,'measure_qc_pass'] = False
+
+    frame_report = frame_report.where(pd.notnull(frame_report), None)
     return [row.to_dict() for index,row in frame_report.iterrows()]
 def _organize_sample_cumulative_count_densities(sample_count_densities,min_pixel_count):
     # Make the list of sample count density features in dictionary format
@@ -270,6 +274,7 @@ def _organize_sample_cumulative_count_densities(sample_count_densities,min_pixel
     sample_report['measure_qc_pass'] = True
     sample_report.loc[sample_report['cumulative_region_area_pixels'] < min_pixel_count,'measure_qc_pass'] = False
     
+    sample_report = sample_report.where(pd.notnull(sample_report), None)
     return [row.to_dict() for index,row in sample_report.iterrows()]
 
 def _organize_sample_aggregate_count_densities(sample_count_densities,min_pixel_count):
@@ -291,6 +296,7 @@ def _organize_sample_aggregate_count_densities(sample_count_densities,min_pixel_
     sample_report['measure_qc_pass'] = True
     sample_report.loc[sample_report['aggregate_measured_image_count'] < 1,'measure_qc_pass'] = False
     
+    sample_report = sample_report.where(pd.notnull(sample_report), None)
     return [row.to_dict() for index,row in sample_report.iterrows()]
 
 
@@ -313,6 +319,7 @@ def _organize_sample_cumulative_percentages(sample_count_densities,min_denominat
     sample_report['measure_qc_pass'] = True
     sample_report.loc[sample_report['cumulative_denominator_count'] < min_denominator_count,'measure_qc_pass'] = False
     
+    sample_report = sample_report.where(pd.notnull(sample_report), None)
     return [row.to_dict() for index,row in sample_report.iterrows()]
 
 def _organize_sample_aggregate_percentages(sample_count_densities,min_denominator_count):
@@ -337,6 +344,7 @@ def _organize_sample_aggregate_percentages(sample_count_densities,min_denominato
     sample_report['measure_qc_pass'] = True
     sample_report.loc[sample_report['aggregate_measured_image_count'] < 1,'measure_qc_pass'] = False
     
+    sample_report = sample_report.where(pd.notnull(sample_report), None)
     return [row.to_dict() for index,row in sample_report.iterrows()]
 
 
