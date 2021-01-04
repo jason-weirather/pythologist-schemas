@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """ Run the pipeline and extract data.
 
 Input is a json prepared by the staging tool.
@@ -13,6 +11,7 @@ import logging, argparse, json, uuid
 from collections import OrderedDict
 import pandas as pd
 from datetime import datetime
+import gzip
 
 
 def cli():
@@ -68,10 +67,13 @@ def main(args):
     logger.info("Validated output schema against schema")
     if args.output_json:
         with open(args.output_json,'wt') as of:
-            of.write(json.dumps(output,indent=2,allow_nan=False))
+            of.write(json.dumps(output,allow_nan=False))
     return 
 
 def execute_sample(files_json,inputs,run_id,temp_dir=None,verbose=False):
+    primary_export = [x['export_name'] for x in inputs['analysis']['inform_exports'] if x['primary_phenotyping']][0]
+    mutually_exclusive_phenotypes = [x['phenotype_name'] for x in inputs['analysis']['mutually_exclusive_phenotypes'] if x['export_name']==primary_export]
+
     logger = logging.getLogger(str(files_json['sample_name']))
     logger.info("staging channel abbreviations")
     channel_abbreviations = dict([(x['full_name'],x['marker_name']) for x in inputs['panel']['markers']])
@@ -115,6 +117,18 @@ def execute_sample(files_json,inputs,run_id,temp_dir=None,verbose=False):
             raise ValueError("segmentation mismatch error "+str(f.shape[0]))
     logger.info("merging completed")
     # Now cdf contains a CellDataFrame sutiable for data extraction
+
+    # One last check for logic of this extraction.  Make sure we have all the expected phenotypes being staged in the CellDataFrame
+    _missing = set(mutually_exclusive_phenotypes) - set(cdf.phenotypes)
+
+    for phenotype_name in _missing:
+        logger.warning("adding in a zeroed mutually exclusive phenotype "+str(phenotype_name)+" for this run.")
+        cdf = cdf.add_zeroed_phenotype(phenotype_name)
+
+    _unknown = set(cdf.phenotypes)- set(mutually_exclusive_phenotypes)
+    if len(_unknown) > 0: raise ValueError("phenotypes we should not be seeing are present. "+str(_unknown))
+
+
 
     # For density measurements build our population definitions
     density_populations = []
@@ -191,12 +205,21 @@ def execute_sample(files_json,inputs,run_id,temp_dir=None,verbose=False):
 
     # Now fill in the data
     for image_name in [x['image_name'] for x in files_json['exports'][0]['images']]:
+        pmap_cnames,pmap_rows,frame_shape, region_sizes = _get_image_info(image_name,files_json['sample_name'],cdf)
         output['images'].append({
             'image_name':image_name,
+            'image_size_pixels':frame_shape,
+            "microns_per_pixel":inputs['project']['parameters']['microns_per_pixel'],
             'image_reports':{
-                'image_count_densities':_organize_frame_count_densities(fcnts,inputs['report']['parameters']['minimum_density_region_size_pixels']),
-                'image_count_percentages':_organize_frame_percentages(fpcnts,inputs['report']['parameters']['minimum_denominator_count'])
-            }
+                'image_count_densities':_organize_frame_count_densities(fcnts.loc[fcnts['frame_name']==image_name],inputs['report']['parameters']['minimum_density_region_size_pixels']),
+                'image_count_percentages':_organize_frame_percentages(fpcnts.loc[fpcnts['frame_name']==image_name],inputs['report']['parameters']['minimum_denominator_count'])
+            },
+            'phenotype_map':{
+                'column_names':pmap_cnames,
+                'rows':pmap_rows,
+                'mutually_exclusive_phenotypes':mutually_exclusive_phenotypes
+            },
+            'region_sizes':region_sizes
         })
 
     # Do sample level densities
@@ -213,6 +236,19 @@ def execute_sample(files_json,inputs,run_id,temp_dir=None,verbose=False):
 
 
     return output
+
+def _get_image_info(image_name,sample_name,cdf):
+    subset = cdf.loc[(cdf['sample_name']==sample_name)&(cdf['frame_name']==image_name)].copy()
+    rows = []
+    for k,v in subset.loc[:,['cell_index','x','y','region_label','phenotype_label','scored_calls']].\
+        set_index(['cell_index','x','y','region_label','phenotype_label'])['scored_calls'].to_dict().items():
+        rows.append(list(k)+[[(k0,v0) for k0,v0 in v.items()]])
+    return ['cell_index','x','y','region_name','mutually_exclusive_phenotype','binary_phenotypes'], \
+           rows, \
+           dict(zip(('y','x'),subset.iloc[0]['frame_shape'])), \
+           [x for x in subset.get_measured_regions()[['region_label','region_area_pixels']].\
+              rename(columns={'region_label':'region_name'}).T.to_dict().values()]
+
 
 def _organize_frame_percentages(frame_percentages,min_denominator_count):
     # Make the list of sample count density features in dictionary format

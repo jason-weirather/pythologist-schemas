@@ -29,12 +29,13 @@ setup(
             'schema_data.inputs',
             'schema_data.inputs.platforms.InForm'
             ],
-  install_requires = ['jsonschema','importlib_resources'],
+  install_requires = ['jsonschema','importlib_resources','XlsxWriter'],
   include_package_data = True,
   entry_points = {
     'console_scripts':['pythologist-stage=pythologist_schemas.cli.stage_tool:cli',
                        'pythologist-templates=pythologist_schemas.cli.template_tool:cli',
-                       'pythologist-run=pythologist_schemas.cli.run_tool:cli'
+                       'pythologist-run=pythologist_schemas.cli.run_tool:cli',
+                       'pythologist-report=pythologist_schemas.cli.report_tool:cli'
                       ]
   }
 )

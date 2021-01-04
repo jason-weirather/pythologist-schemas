@@ -3,6 +3,105 @@
     "type": "object",
     "description":"Define the output report single sample in InForm.",
     "definitions":{
+        "image_attributes":{                            
+            "type":"object",
+            "properties":{
+                "image_name":{
+                    "type":"string"
+                },
+                "image_size_pixels":{
+                    "type":"object",
+                    "properties":{
+                        "y":{
+                            "type":"integer"
+                        },
+                        "x":{
+                            "type":"integer"
+                        }
+                    },
+                    "additionalProperties":false,
+                    "required":["y","x"]
+                },
+                "microns_per_pixel":{
+                    "type":"number"
+                },
+                "region_sizes":{
+                    "type":"array",
+                    "items":{
+                        "type":"object",
+                        "properties":{
+                            "region_name":{
+                                "type":"string"
+                            },
+                            "region_area_pixels":{
+                                "type":"integer"
+                            }
+                        },
+                        "additionalProperties":false,
+                        "required":["region_name","region_area_pixels"]
+                    }
+                },
+                "phenotype_map":{
+                    "type":"object",
+                    "properties":{
+                        "column_names":{
+                            "description":"the column header describing the rows of the phenotype map.",
+                            "type":"array",
+                            "items":{
+                                "type":"string"
+                            },
+                            "const":["cell_index","x","y","region_name","mutually_exclusive_phenotype","binary_phenotypes"]
+                        },
+                        "rows":{
+                            "type":"array",
+                            "items":{
+                                "anyOf":[
+                                    {
+                                        "description":"cell_index, x, y columns",
+                                        "type":"integer"
+                                    },
+                                    {
+                                        "description":"region name and mutually exclusive phenotype name",
+                                        "type":"string"
+                                    },
+                                    {
+                                        "title":"binary_phenotype",
+                                        "type":"array",
+                                        "description":"A list of key value pairs with marker and whether its positive or negative",
+                                        "items":{
+                                            "array":{
+                                                "items":{
+                                                    "anyOf":[
+                                                        {
+                                                            "type":"string",
+                                                            "title":"key"
+                                                        },
+                                                        {
+                                                            "type":"integer",
+                                                            "title":"value",
+                                                            "enum":[0,1]
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        "mutually_exclusive_phenotypes":{
+                            "type":"array",
+                            "items":{
+                                "type":"string"
+                            }
+                        }
+                    },
+                    "additionalProperties":false,
+                    "required":["column_names","rows","mutually_exclusive_phenotypes"]
+                }
+            },
+            "required":["image_name","image_size_pixels","region_sizes","phenotype_map"]    
+        },
         "sample_cumulative_density_row":{
             "type":"object",
             "properties":{
@@ -273,32 +372,31 @@
                     "images":{
                         "type":"array",
                         "items":{
-                            "type":"object",
-                            "properties":{
-                                "image_name":{
-                                    "type":"string"
-                                },
-                                "image_reports":{
-                                    "type":"object",
-                                    "properties":{
-                                        "image_count_densities":{
-                                            "description":"Report for density in a given image.",
-                                            "type":"array",
-                                            "items":{"$ref":"#/definitions/image_density_row"}
-                                        },
-                                        "image_count_percentages":{
-                                            "description":"Report for measurements within a frame for percentages.",
-                                            "type":"array",
-                                            "items":{"$ref":"#/definitions/image_percentage_row"}
+                                "allOf":[
+                                    {"$ref":"#/definitions/image_attributes"},
+                                    {
+                                        "image_reports":{
+                                            "type":"object",
+                                            "properties":{
+                                                "image_count_densities":{
+                                                    "description":"Report for density in a given image.",
+                                                    "type":"array",
+                                                    "items":{"$ref":"#/definitions/image_density_row"}
+                                                },
+                                                "image_count_percentages":{
+                                                    "description":"Report for measurements within a frame for percentages.",
+                                                    "type":"array",
+                                                    "items":{"$ref":"#/definitions/image_percentage_row"}
+                                                }
+                                            },
+                                            "additionalProperties":false,
+                                            "required":["image_count_densities","image_count_percentages"]
                                         }
-                                    },
-                                    "additionalProperties":false,
-                                    "required":["image_count_densities","image_count_percentages"]
-                                }
+                                    }
+                                ]
                             },
-                            "additionalProperties":false,
-                            "required":["image_name","image_reports"]
-                        }
+                            "required":["image_name","image_reports","image_size_pixels","microns_per_pixel","region_sizes","phenotype_map"]
+                        
                     }
                 },
                 "additionalProperties":false,
