@@ -397,10 +397,19 @@
                             },
                             "required":["image_name","image_reports","image_size_pixels","microns_per_pixel","region_sizes","phenotype_map"]
                         
+                    },
+                    "intermediate_files":{
+                        "type":"object",
+                        "properties": {
+                            "project_h5":{"type":["string","null"]},
+                            "celldataframe_h5":{"type":["string","null"]}
+                        },
+                        "additionalProperties":false,
+                        "required":["project_h5","celldataframe_h5"]
                     }
                 },
                 "additionalProperties":false,
-                "required":["sample_name","sample_reports","images"]
+                "required":["sample_name","sample_reports","images","intermediate_files"]
             }
         }
     },

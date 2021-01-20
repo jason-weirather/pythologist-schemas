@@ -11,7 +11,8 @@ import logging, argparse, json, uuid
 from collections import OrderedDict
 import pandas as pd
 from datetime import datetime
-import gzip
+import gzip, os
+from tempfile import NamedTemporaryFile
 
 
 def cli():
@@ -24,6 +25,11 @@ def main(args):
         logging.basicConfig(level=logging.DEBUG)
     else:
         logging.basicConfig(level=logging.WARNING)
+    if args.cache_directory:
+        if not os.path.exists(args.cache_directory):
+            os.makedirs(args.cache_directory)
+        if not os.path.isdir(args.cache_directory):
+            raise ValueError("cache directory not a directory")
     logger = logging.getLogger("start run")
     run_id = str(uuid.uuid4())
     logger.info("run_id "+run_id)
@@ -59,7 +65,7 @@ def main(args):
         'analysis_version':inputs['analysis']['parameters']['analysis_version'],
         'panel_name':inputs['panel']['parameters']['panel_name'],
         'panel_version':inputs['panel']['parameters']['panel_version'],
-        'sample_outputs':[execute_sample(x,inputs,run_id,verbose=args.verbose) for x in inputs['sample_files']]
+        'sample_outputs':[execute_sample(x,inputs,run_id,verbose=args.verbose,cache_directory=args.cache_directory) for x in inputs['sample_files']]
     }
     logger.info("Finished reading creating output. Validate output format.")
     _validator = get_validator(files('schema_data').joinpath('report_output.json'))
@@ -70,7 +76,7 @@ def main(args):
             of.write(json.dumps(output,allow_nan=False))
     return 
 
-def execute_sample(files_json,inputs,run_id,temp_dir=None,verbose=False):
+def execute_sample(files_json,inputs,run_id,verbose=False,cache_directory=None):
     primary_export = [x['export_name'] for x in inputs['analysis']['inform_exports'] if x['primary_phenotyping']][0]
     mutually_exclusive_phenotypes = [x['phenotype_name'] for x in inputs['analysis']['mutually_exclusive_phenotypes'] if x['export_name']==primary_export]
 
@@ -86,31 +92,37 @@ def execute_sample(files_json,inputs,run_id,temp_dir=None,verbose=False):
                                                      custom_mask_name = inputs['analysis']['parameters']['region_annotation_custom_label'],
                                                      other_mask_name = inputs['analysis']['parameters']['unannotated_region_label'],
                                                      microns_per_pixel = inputs['project']['parameters']['microns_per_pixel'],
-                                                     line_pixel_steps = inputs['analysis']['parameters']['draw_margin_width'],
+                                                     line_pixel_steps = int(round(float(inputs['analysis']['parameters']['expanded_margin_width_um'] / \
+                                                                              inputs['project']['parameters']['microns_per_pixel'])-float(inputs['analysis']['parameters']['draw_margin_width']))),
                                                      verbose = False
         )
-
-    for export_name in exports:
-        logger.info("extract CellDataFrame from h5 objects "+str(export_name))
-        exports[export_name] = exports[export_name].cdf
-        exports[export_name]['project_id'] = run_id # force them to have the same project_id
-        exports[export_name]['project_name'] = inputs['project']['parameters']['project_name']
-        meps = [x['phenotype_name'] for x in inputs['analysis']['mutually_exclusive_phenotypes'] if x['export_name']==export_name and \
-                                                                                                    x['convert_to_binary']]
-        if len(meps) > 0:
-            logger.info("converting mutually exclusive phenotype to binary phenotype for "+str(meps))
-            exports[export_name] = exports[export_name].phenotypes_to_scored(phenotypes=meps,overwrite=False)
-
     logger.info("getting the primary export")
     primary_export_name = [x['export_name'] for x in inputs['analysis']['inform_exports'] if x['primary_phenotyping']]
     if len(primary_export_name) != 1: raise ValueError("didnt find the 1 single expected primary phenotyping in analysis")
     primary_export_name = primary_export_name[0]
-    
-    cdf = exports[primary_export_name]
 
-    for export_name in [x for x in exports if x!=primary_export_name]:
+    cpi = None
+    cdfs = {}
+    for export_name in exports:
+        logger.info("extract CellDataFrame from h5 objects "+str(export_name))
+        if export_name == primary_export_name:
+            cpi = exports[export_name]
+
+        cdfs[export_name] = exports[export_name].cdf
+        cdfs[export_name]['project_id'] = run_id # force them to have the same project_id
+        cdfs[export_name]['project_name'] = inputs['project']['parameters']['project_name']
+        meps = [x['phenotype_name'] for x in inputs['analysis']['mutually_exclusive_phenotypes'] if x['export_name']==export_name and \
+                                                                                                    x['convert_to_binary']]
+        if len(meps) > 0:
+            logger.info("converting mutually exclusive phenotype to binary phenotype for "+str(meps))
+            cdfs[export_name] = cdfs[export_name].phenotypes_to_scored(phenotypes=meps,overwrite=False)
+
+    
+    cdf = cdfs[primary_export_name]
+
+    for export_name in [x for x in cdfs if x!=primary_export_name]:
         logger.info("merging in "+str(export_name))
-        _cdf = exports[export_name]
+        _cdf = cdfs[export_name]
         _cdf['project_id'] = run_id
         cdf,f = cdf.merge_scores(_cdf,on=['project_name','sample_name','frame_name','x','y','cell_index'])
         if f.shape[0] > 0:
@@ -234,6 +246,19 @@ def execute_sample(files_json,inputs,run_id,temp_dir=None,verbose=False):
     output['sample_reports']['sample_aggregate_count_percentages'] = \
         _organize_sample_aggregate_percentages(spcnts,inputs['report']['parameters']['minimum_density_region_size_pixels'])
 
+    output['intermediate_files'] = {}
+    output['intermediate_files']['project_h5'] = None
+    output['intermediate_files']['celldataframe_h5'] = None
+
+    if cache_directory:
+        ntf1 = NamedTemporaryFile(dir=cache_directory,delete=False,prefix='PROJ-',suffix='.h5')
+        logger.info("saving project to "+str(ntf1.name))
+        cpi.to_hdf(ntf1.name,overwrite=True)
+        output['intermediate_files']['project_h5'] = ntf1.name
+        ntf2 = NamedTemporaryFile(dir=cache_directory,delete=False,prefix='CDF-',suffix='.h5')
+        logger.info("saving celldataframe to "+str(ntf2.name))
+        cdf.to_hdf(ntf2.name,'data')
+        output['intermediate_files']['celldataframe_h5'] = ntf2.name
 
     return output
 
@@ -391,6 +416,7 @@ def do_inputs():
     parser.add_argument('--input_json',required=True,help="The json file defining the run")
     parser.add_argument('--output_json',help="The output of the pipeline")
     parser.add_argument('--verbose',action='store_true',help="Show more about the run")
+    parser.add_argument('--cache_directory',help="If set intermediate files will be stored in a directory")
     args = parser.parse_args()
     return args
 

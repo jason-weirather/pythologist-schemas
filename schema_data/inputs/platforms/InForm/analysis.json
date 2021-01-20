@@ -115,7 +115,14 @@
                 "draw_margin_width":{
                     "title":"Draw Margin Width (pixels)",
                     "description":"The width of tool used to draw the margin if a hand annotated file is included. Usually 10 pixels",
-                    "type":["integer","null"]
+                    "type":["integer","null"],
+                    "default":10
+                },
+                "expanded_margin_width_um":{
+                    "title":"Expanded Margin Width (um)",
+                    "description":"The width from the center of the margin to the edge of the margin after the watershed in microns.",
+                    "type":["number","null"],
+                    "default":40
                 },
                 "region_annotation_custom_label":{
                     "title":"Region Annotation Custom Label",

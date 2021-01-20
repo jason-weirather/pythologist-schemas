@@ -46,6 +46,14 @@ def main(args):
                                                                        ['Exports','Mutually Exclusive Phenotypes','Binary Phenotypes','Regions'], \
                                                                        ignore_extra_parameters=True)
 
+    # Check to make sure we have requirements specific to special cases
+    if analysis_json['parameters']['region_annotation_strategy'] == 'GIMP_TSI' and \
+       (analysis_json['parameters']['draw_margin_width'] is None or analysis_json['parameters']['expanded_margin_width_um'] is None):
+       raise ValueError("When region strategy is GIMP_TSI, analysis Draw Margin Width and Expanded Margin Width must be set")
+    if analysis_json['parameters']['region_annotation_strategy'] == 'GIMP_CUSTOM' and \
+       (analysis_json['parameters']['region_annotation_custom_label'] is None or analysis_json['parameters']['unannotated_region_label'] is None):
+       raise ValueError("When region strategy is GIMP_CUSTOM, analysis Region Anntoation Custom Label and Unannotated Region Label must be set")
+
     total_success = total_success and analysis_success
 
     logger.info("checking the project excel")
